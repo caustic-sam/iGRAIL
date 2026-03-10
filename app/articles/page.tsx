@@ -127,7 +127,7 @@ export default function ArticlesPage() {
       <div className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <p className="text-center text-gray-600">
-            World Papers Think Tank - Coming Soon
+            iGRAIL Think Tank - Coming Soon
           </p>
         </div>
       </div>

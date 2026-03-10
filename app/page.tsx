@@ -155,6 +155,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Left: Content */}
             <div className="relative z-10">
+              <div className="text-sm font-semibold text-blue-300 uppercase tracking-widest mb-3">iGRAIL</div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight bg-gradient-to-r from-gray-100 via-gray-50 to-gray-200 bg-clip-text text-transparent drop-shadow-sm">
                 Navigating the Future of<br />Digital Policy
               </h1>
@@ -622,7 +623,7 @@ export default function HomePage() {
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                   <Globe className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-white font-bold">World Papers</span>
+                <span className="text-white font-bold">iGRAIL</span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">
                 Your trusted source for comprehensive digital policy intelligence, expert analysis, and professional insights.
@@ -672,7 +673,7 @@ export default function HomePage() {
           </div>
           
           <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-            <div>© 2024 World Papers. All rights reserved.</div>
+            <div>© 2025 iGRAIL. All rights reserved.</div>
             <div className="flex gap-6">
               <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Terms of Service'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Terms of Service</a>
               <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Privacy Policy'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Privacy Policy</a>

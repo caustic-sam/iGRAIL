@@ -540,7 +540,7 @@ export default function ComponentGallery() {
       <div className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <p className="text-center text-gray-600">
-            World Papers Component Gallery - All components are customizable via Tailwind CSS
+            iGRAIL Component Gallery - All components are customizable via Tailwind CSS
           </p>
         </div>
       </div>

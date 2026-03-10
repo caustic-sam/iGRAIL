@@ -251,7 +251,7 @@ class FreshRSSClient {
   }
 
   /**
-   * Convert FreshRSS item to World Papers format
+   * Convert FreshRSS item to iGRAIL format
    */
   static transformItem(item: FreshRSSItem): {
     title: string;

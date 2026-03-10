@@ -6,7 +6,7 @@
  * by warning instead of throwing errors, allowing the app to fall back to mock data.
  *
  * @module lib/supabase
- * @author World Papers Team
+ * @author iGRAIL Team
  */
 
 import { createClient } from '@supabase/supabase-js';

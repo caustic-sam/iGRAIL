@@ -1,11 +1,11 @@
 /**
- * World Papers API Layer
+ * iGRAIL API Layer
  *
  * This module provides a unified API for fetching content from Supabase.
  * All functions automatically fall back to mock data if Supabase is not configured.
  *
  * @module lib/api
- * @author World Papers Team
+ * @author iGRAIL Team
  */
 
 import { supabase, isSupabaseConfigured } from './supabase';

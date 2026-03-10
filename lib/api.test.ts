@@ -1,5 +1,5 @@
 /**
- * Unit tests for World Papers API Layer
+ * Unit tests for iGRAIL API Layer
  *
  * Tests the mock data fallback behavior and API function signatures.
  * Supabase integration tests would require a test database instance.

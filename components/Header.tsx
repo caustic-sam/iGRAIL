@@ -39,8 +39,8 @@ export function Header() {
               <Globe className="w-6 h-6 text-blue-600" />
             </div>
             <div className="text-left">
-              <div className="text-white font-bold text-base leading-tight">World Papers</div>
-              <div className="text-blue-200 text-xs">Global Policy Analysis</div>
+              <div className="text-white font-bold text-base leading-tight">iGRAIL</div>
+              <div className="text-blue-200 text-xs">Global Policy Intelligence</div>
             </div>
           </Link>
 

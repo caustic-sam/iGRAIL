@@ -4,7 +4,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <PageHero
-        title="About World Papers"
+        title="About iGRAIL"
         subtitle="Your trusted source for global digital policy analysis and insights."
       />
 
@@ -14,7 +14,7 @@ export default function AboutPage() {
           <section>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
             <p className="text-lg text-gray-600 leading-relaxed">
-              World Papers provides comprehensive coverage and expert analysis of digital policy developments worldwide.
+              iGRAIL provides comprehensive coverage and expert analysis of digital policy developments worldwide.
               We help policymakers, legal professionals, and business leaders navigate the complex landscape of digital governance.
             </p>
           </section>
