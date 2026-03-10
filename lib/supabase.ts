@@ -12,23 +12,34 @@
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-// Supabase configuration
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const FALLBACK_SUPABASE_URL = 'https://placeholder.supabase.co';
+const FALLBACK_SUPABASE_ANON_KEY = 'placeholder-anon-key';
+
+function isValidHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+// Supabase configuration — fall back to placeholders if env vars are missing or malformed
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const rawAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
+const supabaseUrl = isValidHttpUrl(rawUrl) ? rawUrl : FALLBACK_SUPABASE_URL;
+const supabaseAnonKey = rawAnonKey || FALLBACK_SUPABASE_ANON_KEY;
+
+if (!rawUrl || !rawAnonKey) {
   console.warn('⚠️ Supabase environment variables are not set. Using mock data mode.');
+} else if (supabaseUrl === FALLBACK_SUPABASE_URL) {
+  console.warn(`⚠️ NEXT_PUBLIC_SUPABASE_URL "${rawUrl}" is not a valid URL. Using mock data mode.`);
 }
 
 // Create Supabase client for public/authenticated users (respects RLS)
-const FALLBACK_SUPABASE_URL = 'https://placeholder.supabase.co';
-const FALLBACK_SUPABASE_ANON_KEY = 'public-anon-key';
-
-export const supabase: SupabaseClient = createClient(
-  supabaseUrl || FALLBACK_SUPABASE_URL,
-  supabaseAnonKey || FALLBACK_SUPABASE_ANON_KEY
-);
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
 // Create Supabase admin client for server-side operations (bypasses RLS)
 // This should ONLY be used in API routes, never in client components
