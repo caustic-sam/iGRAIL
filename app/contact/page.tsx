@@ -107,7 +107,7 @@ export default function ContactPage() {
 
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">
-                We'll get back to you within 1-2 business days.
+                We&apos;ll get back to you within 1-2 business days.
               </p>
               <button
                 type="submit"

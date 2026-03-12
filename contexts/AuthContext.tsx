@@ -28,13 +28,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        console.log('🔐 Auth check - session exists:', !!session);
-
         if (session?.user) {
-          console.log('👤 User ID:', session.user.id);
-          console.log('📧 Email:', session.user.email);
-
-          // Fetch user profile with role - with timeout (reduced from 2000ms to 1000ms)
+          // We race the profile query against a timeout so the UI does not stay
+          // forever in a loading state if the profile lookup stalls.
           const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Profile fetch timeout')), 1000)
           );
@@ -50,8 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             timeoutPromise
           ]) as { data: any; error: any };
 
-          console.log('👤 Profile fetch result:', { profile, error });
-
           if (error) {
             console.error('❌ Profile fetch error:', error);
             // Still set loading to false even on error
@@ -60,13 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           if (profile) {
-            console.log('✅ User profile loaded:', profile.email, 'Role:', profile.role);
             setUser(profile);
-          } else {
-            console.warn('⚠️ No profile found for user, but no error returned');
           }
-        } else {
-          console.log('❌ No active session');
         }
       } catch (error) {
         console.error('❌ Error checking session:', error);
@@ -79,9 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 Auth state changed:', event, 'Session:', !!session);
-
+      async (_event, session) => {
         if (session?.user) {
           // Fetch fresh profile data
           const { data: profile, error } = await supabase
@@ -95,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
 
           if (profile) {
-            console.log('✅ Profile updated from auth change:', profile.email);
             setUser(profile);
           }
         } else {

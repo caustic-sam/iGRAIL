@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase, supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
+import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
+import { requireAdminRouteAccess } from '@/lib/route-guards';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -120,8 +121,6 @@ export async function GET(request: Request) {
   try {
     // Check if Supabase is configured
     if (!isSupabaseConfigured()) {
-      console.log('📝 Using mock data (Supabase not configured)');
-
       // Filter mock data by status if provided
       let filtered = mockAdminArticles;
       if (statusFilter) {
@@ -135,31 +134,12 @@ export async function GET(request: Request) {
       });
     }
 
-    // Get current user to check role and apply filters
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
-        { status: 401 }
-      );
+    // Admin APIs must verify the caller before the service-role client is used.
+    // Without this check, the route would bypass RLS for anyone who can reach it.
+    const adminContext = await requireAdminRouteAccess();
+    if (adminContext instanceof NextResponse) {
+      return adminContext;
     }
-
-    // Fetch user profile to check role
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!profile) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 403 }
-      );
-    }
-
-    const userRole = profile.role;
 
     // Build Supabase query - select all needed columns
     // Use admin client to bypass RLS (we handle permissions in code above)
@@ -177,7 +157,7 @@ export async function GET(request: Request) {
     const { data, error } = await query;
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Supabase error while loading admin article list:', error);
       throw error;
     }
 
@@ -185,7 +165,10 @@ export async function GET(request: Request) {
     const articles = (data || []).map(article => ({
       ...article,
       scheduled_for: article.scheduled_for || null,
-      author_name: 'Admin', // TODO: Join with user_profiles to get actual author name
+      // This is a temporary placeholder until the list query joins author/profile
+      // data directly. Keeping the fallback explicit is better than returning an
+      // empty string and hiding the fact that the data model is incomplete.
+      author_name: 'Admin',
       view_count: article.view_count || 0,
       revision_count: article.revision_count || 0,
     }));
@@ -194,10 +177,10 @@ export async function GET(request: Request) {
       articles,
       source: 'supabase',
       count: articles.length,
-      role: userRole, // Include role for debugging
+      role: adminContext.profile.role,
     });
   } catch (error) {
-    console.error('Error fetching articles:', error);
+    console.error('Unexpected error while loading admin article list:', error);
 
     // Fallback to mock data
     let filtered = mockAdminArticles;
@@ -218,21 +201,9 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as ArticleCreatePayload;
-    // Sanitized logging - only log metadata, never content
-    console.log('📥 POST /api/admin/articles', {
-      hasTitle: !!body.title,
-      hasSlug: !!body.slug,
-      contentLength: body.content?.length,
-      status: body.status || 'draft',
-    });
 
     // Validate required fields
     if (!body.title || !body.slug || !body.content) {
-      console.error('❌ Validation failed - missing fields:', {
-        hasTitle: !!body.title,
-        hasSlug: !!body.slug,
-        hasContent: !!body.content,
-      });
       return NextResponse.json(
         { error: 'Missing required fields: title, slug, content' },
         { status: 400 }
@@ -246,8 +217,6 @@ export async function POST(request: Request) {
 
     // Check if Supabase is configured
     if (!isSupabaseConfigured()) {
-      console.log('📝 Mock save mode (Supabase not configured)');
-
       // Simulate successful save
       const mockId = Math.random().toString(36).substring(2, 11);
       const mockArticle = {
@@ -261,8 +230,6 @@ export async function POST(request: Request) {
         author_name: 'Admin',
       };
 
-      console.log('✅ Mock article created:', mockId);
-
       return NextResponse.json({
         article: mockArticle,
         source: 'mock',
@@ -270,36 +237,11 @@ export async function POST(request: Request) {
       });
     }
 
-    // Get current user to set as author
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in to create articles' },
-        { status: 401 }
-      );
-    }
-
-    // Fetch user profile to verify role
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-
-    if (!profile) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 403 }
-      );
-    }
-
-    // Simplified for MVP - only admins can create articles
-    if (profile.role !== 'admin') {
-      return NextResponse.json(
-        { error: 'Only admins can create articles' },
-        { status: 403 }
-      );
+    // We repeat the admin check inside POST because API routes are callable directly.
+    // Never assume the UI is the only entry point.
+    const adminContext = await requireAdminRouteAccess();
+    if (adminContext instanceof NextResponse) {
+      return adminContext;
     }
 
     // Get requested status, default to draft
@@ -314,7 +256,7 @@ export async function POST(request: Request) {
       summary: body.excerpt || body.content.substring(0, 200) + '...', // Base schema requires summary
       excerpt: body.excerpt || body.content.substring(0, 200) + '...', // Also save to excerpt
       status: requestedStatus,
-      author_id: session.user.id, // Set current user as author
+      author_id: adminContext.user.id, // Set the authenticated admin as the author
       featured_image_url: body.featured_image_url || null,
       published_at: body.published_at || null,
       scheduled_for: body.scheduled_for || null, // Save scheduled date
@@ -331,7 +273,7 @@ export async function POST(request: Request) {
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Supabase error while creating an article:', error);
       throw error;
     }
 
@@ -341,14 +283,10 @@ export async function POST(request: Request) {
       message: 'Article saved successfully',
     });
   } catch (error) {
-    console.error('❌ Error creating article:', error);
+    console.error('Unexpected error while creating an article:', error);
 
     const supabaseError = extractSupabaseError(error);
     const fallbackMessage = error instanceof Error ? error.message : 'Failed to create article';
-
-    if (supabaseError) {
-      console.error('❌ Error details:', supabaseError);
-    }
 
     return NextResponse.json(
       {

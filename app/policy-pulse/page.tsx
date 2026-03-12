@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FileText, BarChart3, Network, Rss, RefreshCw, ExternalLink } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { PageHero } from '@/components/PageHero';
@@ -29,6 +29,53 @@ interface CategoryData {
   count: number;
 }
 
+const INITIAL_CATEGORIES: CategoryData[] = [
+  {
+    category: 'policy',
+    title: 'Policy & Regulation',
+    icon: <FileText className="w-5 h-5" />,
+    color: 'text-blue-700',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+    items: [],
+    loading: true,
+    count: 0,
+  },
+  {
+    category: 'research',
+    title: 'Research & Studies',
+    icon: <BarChart3 className="w-5 h-5" />,
+    color: 'text-purple-700',
+    bgColor: 'bg-purple-50',
+    borderColor: 'border-purple-200',
+    items: [],
+    loading: true,
+    count: 0,
+  },
+  {
+    category: 'analysis',
+    title: 'Expert Analysis',
+    icon: <Network className="w-5 h-5" />,
+    color: 'text-green-700',
+    bgColor: 'bg-green-50',
+    borderColor: 'border-green-200',
+    items: [],
+    loading: true,
+    count: 0,
+  },
+  {
+    category: 'news',
+    title: 'Industry News',
+    icon: <Rss className="w-5 h-5" />,
+    color: 'text-orange-700',
+    bgColor: 'bg-orange-50',
+    borderColor: 'border-orange-200',
+    items: [],
+    loading: true,
+    count: 0,
+  },
+];
+
 function formatRelativeTime(date: Date | null): string {
   if (!date) return '';
 
@@ -44,56 +91,13 @@ function formatRelativeTime(date: Date | null): string {
 }
 
 export default function PolicyPulsePage() {
-  const [categories, setCategories] = useState<CategoryData[]>([
-    {
-      category: 'policy',
-      title: 'Policy & Regulation',
-      icon: <FileText className="w-5 h-5" />,
-      color: 'text-blue-700',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
-      items: [],
-      loading: true,
-      count: 0,
-    },
-    {
-      category: 'research',
-      title: 'Research & Studies',
-      icon: <BarChart3 className="w-5 h-5" />,
-      color: 'text-purple-700',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200',
-      items: [],
-      loading: true,
-      count: 0,
-    },
-    {
-      category: 'analysis',
-      title: 'Expert Analysis',
-      icon: <Network className="w-5 h-5" />,
-      color: 'text-green-700',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
-      items: [],
-      loading: true,
-      count: 0,
-    },
-    {
-      category: 'news',
-      title: 'Industry News',
-      icon: <Rss className="w-5 h-5" />,
-      color: 'text-orange-700',
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200',
-      items: [],
-      loading: true,
-      count: 0,
-    },
-  ]);
+  const [categories, setCategories] = useState<CategoryData[]>(INITIAL_CATEGORIES);
 
   const [globalRefreshing, setGlobalRefreshing] = useState(false);
 
-  const fetchCategoryData = async (category: string) => {
+  // We memoize the fetch helper because other callbacks and effects depend on it.
+  // Stable function identity keeps the dependency graph honest and predictable.
+  const fetchCategoryData = useCallback(async (category: string) => {
     try {
       const response = await fetch(`/api/feeds?category=${category}&count=20`);
       const data = await response.json();
@@ -105,10 +109,13 @@ export default function PolicyPulsePage() {
       console.error(`Error fetching ${category}:`, error);
       return { items: [], count: 0 };
     }
-  };
+  }, []);
 
-  const loadAllCategories = async () => {
-    const promises = categories.map(async (cat) => {
+  // This helper converts a category definition list into fully loaded UI state.
+  // Keeping it separate makes the initial load path and the refresh path share
+  // the exact same behavior instead of drifting apart over time.
+  const loadCategoriesFrom = useCallback(async (sourceCategories: CategoryData[]) => {
+    const promises = sourceCategories.map(async (cat) => {
       const data = await fetchCategoryData(cat.category);
       return {
         ...cat,
@@ -118,18 +125,33 @@ export default function PolicyPulsePage() {
       };
     });
 
-    const updatedCategories = await Promise.all(promises);
-    setCategories(updatedCategories);
-  };
+    return Promise.all(promises);
+  }, [fetchCategoryData]);
 
   useEffect(() => {
-    loadAllCategories();
-  }, []);
+    // The state update happens after the async work completes, not synchronously
+    // during the effect setup. That keeps us aligned with the React lint rule.
+    let isMounted = true;
+
+    async function loadInitialCategories() {
+      const updatedCategories = await loadCategoriesFrom(INITIAL_CATEGORIES);
+      if (isMounted) {
+        setCategories(updatedCategories);
+      }
+    }
+
+    void loadInitialCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [loadCategoriesFrom]);
 
   const handleGlobalRefresh = async () => {
     setGlobalRefreshing(true);
     setCategories(prev => prev.map(cat => ({ ...cat, loading: true })));
-    await loadAllCategories();
+    const refreshedCategories = await loadCategoriesFrom(INITIAL_CATEGORIES);
+    setCategories(refreshedCategories);
     setGlobalRefreshing(false);
   };
 

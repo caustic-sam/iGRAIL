@@ -7,7 +7,7 @@ export default function Navigation() {
       <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <Link href="/" className="font-semibold">
-            GAILP
+            iGRAIL
           </Link>
           <nav className="hidden md:flex items-center gap-4 text-sm">
             <Link href="/policy-pulse" className="hover:underline">Policy Pulse</Link>

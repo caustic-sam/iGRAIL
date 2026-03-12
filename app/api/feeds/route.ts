@@ -17,6 +17,12 @@ interface FeedItem {
   category: 'policy' | 'research' | 'news' | 'analysis';
 }
 
+function logFeedRouteError(message: string, error: unknown) {
+  if (process.env.NODE_ENV !== 'test') {
+    console.error(message, error);
+  }
+}
+
 // Categorize feed items based on feed name or content keywords
 function categorizeFeedItem(item: FreshRSSItem): 'policy' | 'research' | 'news' | 'analysis' {
   const feedName = item.origin?.title?.toLowerCase() || '';
@@ -103,7 +109,7 @@ async function fetchRSSFeed(count: number, category: string | null): Promise<Fee
       .filter(item => !category || item.category === category)
       .slice(0, count);
   } catch (error) {
-    console.error('❌ RSS parsing error:', error);
+    logFeedRouteError('RSS parsing error:', error);
     throw error;
   }
 }
@@ -181,7 +187,6 @@ export async function GET(request: Request) {
     const client = getFreshRSSClient();
 
     if (!client) {
-      console.log('📝 FreshRSS not configured - using mock data');
       return NextResponse.json({
         data: getMockFeedItems(count, category),
         source: 'mock',
@@ -189,12 +194,8 @@ export async function GET(request: Request) {
       });
     }
 
-    console.log('🔄 Fetching items from FreshRSS...');
-
     // Authenticate and fetch items
     const items = await client.getItems({ count: count * 2, excludeRead: false });
-
-    console.log(`✅ Fetched ${items.length} items from FreshRSS`);
 
     // Transform and categorize
     const categorizedItems = items
@@ -214,8 +215,6 @@ export async function GET(request: Request) {
       .filter(item => !category || item.category === category)
       .slice(0, count);
 
-    console.log(`📊 Returning ${categorizedItems.length} categorized items`);
-
     return NextResponse.json({
       data: categorizedItems,
       source: 'freshrss',
@@ -223,14 +222,11 @@ export async function GET(request: Request) {
       unreadCount: await client.getUnreadCount(),
     });
   } catch (error) {
-    console.error('❌ FreshRSS API error:', error);
+    logFeedRouteError('FreshRSS API error in /api/feeds:', error);
 
     // Try RSS feed as fallback
     try {
-      console.log('🔄 Trying RSS feed fallback...');
       const rssItems = await fetchRSSFeed(count, category);
-
-      console.log(`✅ Fetched ${rssItems.length} items from RSS feed`);
 
       return NextResponse.json({
         data: rssItems,
@@ -238,7 +234,7 @@ export async function GET(request: Request) {
         count: rssItems.length,
       });
     } catch (rssError) {
-      console.error('❌ RSS feed error:', rssError);
+      logFeedRouteError('RSS feed fallback failed in /api/feeds:', rssError);
 
       // Final fallback to mock data
       return NextResponse.json({

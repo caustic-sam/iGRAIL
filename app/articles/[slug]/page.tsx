@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Clock, Calendar } from 'lucide-react';
@@ -61,9 +62,9 @@ export default function ArticlePage() {
         <Card className="p-8 max-w-md text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Article Not Found</h1>
           <p className="text-gray-600">{error || 'This article does not exist or has been removed.'}</p>
-          <a href="/articles" className="text-blue-600 hover:text-blue-700 mt-4 inline-block">
+          <Link href="/articles" className="text-blue-600 hover:text-blue-700 mt-4 inline-block">
             View all articles
-          </a>
+          </Link>
         </Card>
       </div>
     );

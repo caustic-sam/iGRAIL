@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // output: 'standalone', // Commented out for Vercel deployment - use for Docker only
@@ -85,9 +87,15 @@ const nextConfig = {
     mdxRs: true,
   },
 
-  // Turbopack config (empty object to silence Next.js 16 warning)
-  // Most apps work fine with Turbopack without custom config
-  turbopack: {},
+  // Next.js 16 can choose the wrong workspace root when a parent directory also
+  // contains a lockfile. Pinning the root keeps build tracing deterministic.
+  outputFileTracingRoot: path.resolve(__dirname),
+
+  // Turbopack should use the same root so development and production builds
+  // reason about the project boundary in the same way.
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
 
   // Skip ESLint checks during builds (use with caution)
   // eslint: {

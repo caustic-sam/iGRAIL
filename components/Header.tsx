@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,12 +23,16 @@ const navItems = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  // Remote avatars can fail for plenty of boring reasons: expired URLs, provider
+  // changes, or missing domains in Next.js image config. We keep one explicit flag
+  // so the UI can fall back to the generic icon after the first failure.
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const pathname = usePathname();
   const { user, loading, signOut } = useAuth();
   const { isOpen, feature, showComingSoon, closeModal } = useComingSoon();
-
-  // Debug logging
-  console.log('🔍 Header render - user:', user, 'loading:', loading);
+  // This derived value keeps the JSX simpler: either we have a usable avatar URL,
+  // or we intentionally render the fallback icon.
+  const avatarUrl = user?.avatar_url && !avatarLoadFailed ? user.avatar_url : null;
 
   return (
     <header className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] border-b border-blue-900/20 sticky top-0 z-50">
@@ -84,14 +89,20 @@ export function Header() {
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-blue-100 hover:text-white hover:bg-white/10"
                   >
-                    {user.avatar_url ? (
-                      <img
-                        src={user.avatar_url}
+                    {avatarUrl ? (
+                      // `unoptimized` is intentional here because avatar URLs may come
+                      // from user-controlled providers that are not worth routing through
+                      // the image optimizer just to render a 24px menu icon.
+                      <Image
+                        src={avatarUrl}
                         alt={user.email?.split('@')[0] || 'User'}
+                        width={24}
+                        height={24}
+                        unoptimized
                         className="w-6 h-6 rounded-full"
-                        onError={(e) => {
-                          console.error('Avatar failed to load:', user.avatar_url);
-                          e.currentTarget.style.display = 'none';
+                        onError={() => {
+                          console.error('Avatar failed to load:', avatarUrl);
+                          setAvatarLoadFailed(true);
                         }}
                       />
                     ) : (

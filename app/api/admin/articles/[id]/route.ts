@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
+import { requireAdminRouteAccess } from '@/lib/route-guards';
 
 type ArticleStatus = 'draft' | 'scheduled' | 'published';
 
@@ -47,15 +48,21 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    void request;
     const { id } = await params;
-    console.log('📥 GET /api/admin/articles/[id] - Fetching article:', id);
 
     if (!isSupabaseConfigured()) {
-      console.log('📝 Mock mode - Supabase not configured');
       return NextResponse.json(
         { error: 'Supabase not configured' },
         { status: 500 }
       );
+    }
+
+    // This is the critical security boundary for the route.
+    // We must authenticate the caller *before* using the service-role client.
+    const adminContext = await requireAdminRouteAccess();
+    if (adminContext instanceof NextResponse) {
+      return adminContext;
     }
 
     const { data, error } = await supabaseAdmin
@@ -65,21 +72,19 @@ export async function GET(
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error(`Supabase error while fetching article "${id}":`, error);
       return NextResponse.json(
         { error: error.message },
         { status: 404 }
       );
     }
 
-    console.log('✅ Article fetched:', data.title);
-
     return NextResponse.json({
       article: data,
       source: 'supabase',
     });
   } catch (error) {
-    console.error('❌ Error fetching article:', error);
+    console.error('Unexpected error while fetching an admin article:', error);
 
     const supabaseError = extractSupabaseError(error);
     const fallbackMessage = error instanceof Error ? error.message : 'Failed to fetch article';
@@ -101,19 +106,17 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    console.log('📥 PUT /api/admin/articles/[id] - Updating article:', id);
 
     const body = (await request.json()) as ArticleUpdatePayload;
-    console.log('📋 Request body:', {
-      title: body.title,
-      slug: body.slug,
-      contentLength: body.content?.length,
-      status: body.status,
-    });
+
+    // Service-role queries bypass RLS, so this guard must come before the update.
+    const adminContext = await requireAdminRouteAccess();
+    if (adminContext instanceof NextResponse) {
+      return adminContext;
+    }
 
     // Validate required fields
     if (!body.title || !body.slug || !body.content) {
-      console.error('❌ Validation failed - missing fields');
       return NextResponse.json(
         { error: 'Missing required fields: title, slug, content' },
         { status: 400 }
@@ -126,7 +129,6 @@ export async function PUT(
     const readTime = Math.ceil(wordCount / wordsPerMinute);
 
     if (!isSupabaseConfigured()) {
-      console.log('📝 Mock update mode (Supabase not configured)');
       return NextResponse.json({
         article: {
           id,
@@ -162,11 +164,9 @@ export async function PUT(
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error(`Supabase error while updating article "${id}":`, error);
       throw error;
     }
-
-    console.log('✅ Article updated:', data.title);
 
     return NextResponse.json({
       article: data,
@@ -174,14 +174,10 @@ export async function PUT(
       message: 'Article updated successfully',
     });
   } catch (error) {
-    console.error('❌ Error updating article:', error);
+    console.error('Unexpected error while updating an admin article:', error);
 
     const supabaseError = extractSupabaseError(error);
     const fallbackMessage = error instanceof Error ? error.message : 'Failed to update article';
-
-    if (supabaseError) {
-      console.error('❌ Error details:', supabaseError);
-    }
 
     return NextResponse.json(
       {
@@ -199,16 +195,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    void request;
     const { id } = await params;
-    console.log('📥 DELETE /api/admin/articles/[id] - Deleting article:', id);
 
     if (!isSupabaseConfigured()) {
-      console.log('📝 Mock delete mode (Supabase not configured)');
       return NextResponse.json({
         success: true,
         message: 'Article deleted successfully (mock mode)',
         source: 'mock',
       });
+    }
+
+    // Deletion is the highest-risk path, so we keep the permission check explicit.
+    const adminContext = await requireAdminRouteAccess();
+    if (adminContext instanceof NextResponse) {
+      return adminContext;
     }
 
     const { error } = await supabaseAdmin
@@ -217,11 +218,9 @@ export async function DELETE(
       .eq('id', id);
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error(`Supabase error while deleting article "${id}":`, error);
       throw error;
     }
-
-    console.log('✅ Article deleted successfully');
 
     return NextResponse.json({
       success: true,
@@ -229,7 +228,7 @@ export async function DELETE(
       source: 'supabase',
     });
   } catch (error) {
-    console.error('❌ Error deleting article:', error);
+    console.error('Unexpected error while deleting an admin article:', error);
 
     const supabaseError = extractSupabaseError(error);
     const fallbackMessage = error instanceof Error ? error.message : 'Failed to delete article';

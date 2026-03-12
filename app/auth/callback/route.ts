@@ -6,10 +6,7 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code');
   const origin = requestUrl.origin;
 
-  console.log('🔄 OAuth callback received', { code: !!code });
-
   if (!code) {
-    console.error('❌ No code in callback');
     return NextResponse.redirect(`${origin}/login?error=no_code`);
   }
 
@@ -18,7 +15,6 @@ export async function GET(request: NextRequest) {
     let response = NextResponse.redirect(`${origin}/admin`);
 
     // Create Supabase client with cookie handling for route handler
-    console.log('🔧 Creating Supabase client with cookie handling...');
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -46,22 +42,14 @@ export async function GET(request: NextRequest) {
     );
 
     // Exchange code for session
-    console.log('🔄 Exchanging code for session...');
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    console.log('🔐 Code exchange result:', {
-      success: !!data.session,
-      error: error?.message,
-      userId: data.session?.user?.id
-    });
-
     if (error) {
-      console.error('❌ Code exchange failed:', error);
+      console.error('OAuth code exchange failed:', error);
       return NextResponse.redirect(`${origin}/login?error=auth_failed`);
     }
 
     if (!data.session) {
-      console.error('❌ No session after code exchange');
       return NextResponse.redirect(`${origin}/login?error=no_session`);
     }
 
@@ -72,12 +60,9 @@ export async function GET(request: NextRequest) {
       .eq('id', data.session.user.id)
       .single();
 
-    console.log('👤 User profile:', profile?.email, 'Role:', profile?.role);
-
     // Update avatar from GitHub OAuth metadata if available
     const githubAvatar = data.session.user.user_metadata?.avatar_url;
     if (githubAvatar && profile) {
-      console.log('🖼️ Updating avatar from GitHub:', githubAvatar);
       await supabase
         .from('user_profiles')
         .update({ avatar_url: githubAvatar })
@@ -90,9 +75,14 @@ export async function GET(request: NextRequest) {
       redirectTo = '/admin';
     }
 
-    // Check for explicit redirectTo parameter (from login page)
-    const finalUrl = requestUrl.searchParams.get('redirectTo') || redirectTo;
-    console.log('✅ Redirecting to:', finalUrl);
+    // The login page and OAuth route are only supposed to pass internal app
+    // paths such as `/admin` or `/admin/media`.
+    //
+    // We validate that assumption here instead of trusting query-string input.
+    // That gives junior developers a clear rule to copy in future auth flows:
+    // accept relative in-app destinations, reject fully qualified external URLs.
+    const requestedRedirect = requestUrl.searchParams.get('redirectTo');
+    const finalUrl = requestedRedirect?.startsWith('/') ? requestedRedirect : redirectTo;
 
     // If the final URL is different from /admin, create a new response with the right redirect
     // but copy over all the cookies that were set
@@ -107,7 +97,7 @@ export async function GET(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('❌ Callback error:', error);
+    console.error('Unexpected OAuth callback error:', error);
     return NextResponse.redirect(`${origin}/login?error=callback_failed`);
   }
 }

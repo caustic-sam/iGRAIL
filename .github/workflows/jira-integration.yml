@@ -16,9 +16,9 @@ jobs:
       - name: Extract Jira Issue Key
         id: jira
         run: |
-          # Extract GAILP-XXX from PR title or branch name
-          ISSUE_FROM_TITLE=$(echo "${{ github.event.pull_request.title }}" | grep -oP 'GAILP-\d+' | head -1 || echo "")
-          ISSUE_FROM_BRANCH=$(echo "${{ github.head_ref }}" | grep -oP 'GAILP-\d+' | head -1 || echo "")
+          # Extract a generic Jira-style issue key such as PROJECT-123.
+          ISSUE_FROM_TITLE=$(echo "${{ github.event.pull_request.title }}" | grep -oP '[A-Z][A-Z0-9]+-\d+' | head -1 || echo "")
+          ISSUE_FROM_BRANCH=$(echo "${{ github.head_ref }}" | grep -oP '[A-Z][A-Z0-9]+-\d+' | head -1 || echo "")
           ISSUE="${ISSUE_FROM_TITLE:-$ISSUE_FROM_BRANCH}"
           echo "issue=$ISSUE" >> $GITHUB_OUTPUT
           echo "Found issue: $ISSUE"
@@ -64,7 +64,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🔗 Linked to Jira: [GAILP-${{ steps.jira.outputs.issue }}](https://cortexaillc.atlassian.net/browse/${{ steps.jira.outputs.issue }})'
+              body: '🔗 Linked to Jira: [${{ steps.jira.outputs.issue }}](https://cortexaillc.atlassian.net/browse/${{ steps.jira.outputs.issue }})'
             })
 
   link-commits:
@@ -81,8 +81,8 @@ jobs:
         run: |
           # Get commit messages from this push
           git log --format="%s|%H" ${{ github.event.before }}..${{ github.event.after }} | while IFS='|' read -r message hash; do
-            # Extract GAILP-XXX from commit message
-            ISSUE=$(echo "$message" | grep -oP 'GAILP-\d+' | head -1 || echo "")
+            # Extract a generic Jira-style issue key such as PROJECT-123.
+            ISSUE=$(echo "$message" | grep -oP '[A-Z][A-Z0-9]+-\d+' | head -1 || echo "")
 
             if [ -n "$ISSUE" ]; then
               echo "Found issue $ISSUE in commit $hash"

@@ -22,6 +22,20 @@ interface FreshRSSItem {
   };
 }
 
+const SHOULD_LOG_FRESHRSS_ERRORS = process.env.NODE_ENV !== 'test';
+
+function logFreshRSSError(message: string, error: unknown) {
+  if (SHOULD_LOG_FRESHRSS_ERRORS) {
+    console.error(message, error);
+  }
+}
+
+function logFreshRSSWarning(message: string) {
+  if (SHOULD_LOG_FRESHRSS_ERRORS) {
+    console.warn(message);
+  }
+}
+
 class FreshRSSClient {
   private config: FreshRSSConfig;
   private authToken?: string;
@@ -47,7 +61,7 @@ class FreshRSSClient {
       });
 
       if (!response.ok) {
-        console.error('FreshRSS authentication failed:', response.statusText);
+        logFreshRSSError('FreshRSS authentication failed:', response.statusText);
         return false;
       }
 
@@ -61,7 +75,7 @@ class FreshRSSClient {
 
       return false;
     } catch (error) {
-      console.error('FreshRSS authentication error:', error);
+      logFreshRSSError('FreshRSS authentication error:', error);
       return false;
     }
   }
@@ -112,7 +126,7 @@ class FreshRSSClient {
       const data = await response.json();
       return data.items || [];
     } catch (error) {
-      console.error('Error fetching FreshRSS items:', error);
+      logFreshRSSError('Error fetching FreshRSS items:', error);
       return [];
     }
   }
@@ -147,7 +161,7 @@ class FreshRSSClient {
 
       return totalUnread?.count || 0;
     } catch (error) {
-      console.error('Error fetching unread count:', error);
+      logFreshRSSError('Error fetching unread count:', error);
       return 0;
     }
   }
@@ -183,7 +197,7 @@ class FreshRSSClient {
       const data = await response.json();
       return data.subscriptions || [];
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
+      logFreshRSSError('Error fetching subscriptions:', error);
       return [];
     }
   }
@@ -214,7 +228,7 @@ class FreshRSSClient {
 
       return response.ok;
     } catch (error) {
-      console.error('Error marking item as read:', error);
+      logFreshRSSError('Error marking item as read:', error);
       return false;
     }
   }
@@ -245,7 +259,7 @@ class FreshRSSClient {
 
       return response.ok;
     } catch (error) {
-      console.error('Error toggling star:', error);
+      logFreshRSSError('Error toggling star:', error);
       return false;
     }
   }
@@ -281,7 +295,7 @@ export function getFreshRSSClient(): FreshRSSClient | null {
   if (!process.env.FRESHRSS_API_URL ||
       !process.env.FRESHRSS_API_USERNAME ||
       !process.env.FRESHRSS_API_PASSWORD) {
-    console.warn('⚠️ FreshRSS environment variables not configured');
+    logFreshRSSWarning('FreshRSS environment variables not configured');
     return null;
   }
 

@@ -117,9 +117,8 @@ export default function AdminDashboard() {
       toast.success('Article deleted successfully!', {
         description: articleTitle,
       });
-      console.log('✅ Article deleted successfully');
     } catch (error) {
-      console.error('❌ Error deleting article:', error);
+      console.error('Error deleting article from the admin dashboard:', error);
       toast.error('Failed to delete article', {
         description: error instanceof Error ? error.message : 'Please try again',
       });

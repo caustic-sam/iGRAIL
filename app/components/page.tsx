@@ -2,6 +2,7 @@
 
 import React from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
@@ -25,12 +26,9 @@ export default function ComponentGallery() {
               <h1 className="text-3xl font-bold text-gray-900">Component Gallery</h1>
               <p className="text-gray-600 mt-1">Visual showcase of all UI components</p>
             </div>
-            <a
-              href="/"
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
+            <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
               ← Back to Home
-            </a>
+            </Link>
           </div>
         </div>
       </div>

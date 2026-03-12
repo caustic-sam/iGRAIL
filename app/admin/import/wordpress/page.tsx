@@ -107,11 +107,11 @@ export default function WordPressImportPage() {
             </li>
             <li className="flex gap-3">
               <span className="font-semibold text-blue-600 min-w-[24px]">3.</span>
-              <span>Select "All content" or "Posts" (includes drafts)</span>
+              <span>Select &quot;All content&quot; or &quot;Posts&quot; (includes drafts)</span>
             </li>
             <li className="flex gap-3">
               <span className="font-semibold text-blue-600 min-w-[24px]">4.</span>
-              <span>Click "Download Export File" to get the XML file</span>
+              <span>Click &quot;Download Export File&quot; to get the XML file</span>
             </li>
             <li className="flex gap-3">
               <span className="font-semibold text-blue-600 min-w-[24px]">5.</span>

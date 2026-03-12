@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { BookOpen, Search } from 'lucide-react';
 import { glossaryTerms, getCategories } from '@/data/glossary-terms';
@@ -107,12 +108,12 @@ export default function GlossaryPage() {
           <p className="text-gray-600 mb-4">
             Help us expand this glossary by suggesting new terms or improvements.
           </p>
-          <a
+          <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] hover:opacity-90 text-white font-medium rounded-lg transition-opacity"
           >
             Back to Home
-          </a>
+          </Link>
         </Card>
       </div>
     </div>

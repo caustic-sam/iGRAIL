@@ -1,10 +1,17 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { getSupabaseServer } from '@/lib/supabase/server';
+import { blockProductionDiagnostics } from '@/lib/route-guards';
 
 export async function GET() {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const blockedResponse = blockProductionDiagnostics('/api/auth-debug');
+    if (blockedResponse) {
+      return blockedResponse;
+    }
+
+    // We use the same server helper as the rest of the app so the auth flow is
+    // consistent across route handlers.
+    const supabase = await getSupabaseServer();
 
     // Get current session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();

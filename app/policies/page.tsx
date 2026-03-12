@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { ArrowRight, Search, Filter, Database, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -46,12 +47,9 @@ export default function PoliciesPage() {
               <h1 className="text-4xl font-bold text-white mb-2">Research</h1>
               <p className="text-blue-200">Global policy database and analysis</p>
             </div>
-            <a
-              href="/"
-              className="text-blue-200 hover:text-white font-medium transition-colors"
-            >
+            <Link href="/" className="text-blue-200 hover:text-white font-medium transition-colors">
               ← Back to Home
-            </a>
+            </Link>
           </div>
         </div>
       </div>

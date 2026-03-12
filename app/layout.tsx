@@ -8,20 +8,20 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "GAILP — Global AI & Identity Policy",
+  title: "iGRAIL — Global Policy Intelligence",
   description:
-    "Translating regulation into trustworthy, interoperable systems.",
+    "Policy intelligence for AI, identity, interoperability, and digital governance.",
   openGraph: {
-    title: "GAILP — Global AI & Identity Policy",
+    title: "iGRAIL — Global Policy Intelligence",
     description:
-      "Translating regulation into trustworthy, interoperable systems.",
+      "Policy intelligence for AI, identity, interoperability, and digital governance.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "GAILP — Global AI & Identity Policy",
+    title: "iGRAIL — Global Policy Intelligence",
     description:
-      "Translating regulation into trustworthy, interoperable systems.",
+      "Policy intelligence for AI, identity, interoperability, and digital governance.",
   },
 };
 

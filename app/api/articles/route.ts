@@ -14,8 +14,6 @@ export async function GET(request: Request) {
   try {
     // Check if Supabase is configured
     if (!isSupabaseConfigured()) {
-      console.log('📝 Using mock data (Supabase not configured)');
-
       return NextResponse.json({
         articles: mockArticles.slice(0, limit),
         source: 'mock',
@@ -26,7 +24,7 @@ export async function GET(request: Request) {
     // Build query for published articles
     let query = supabase
       .from('articles')
-      .select('id, title, slug, summary, content, published_at, created_at, read_time_minutes, word_count, featured_image_url, featured_image_alt, is_featured, category, author:authors(name, title, avatar_url)')
+      .select('id, title, slug, summary, content, published_at, created_at, read_time_minutes, word_count, featured_image_url, featured_image_alt, is_featured, category, author:authors!articles_author_id_fkey(name, avatar_url)')
       .eq('status', 'published')
       .not('published_at', 'is', null);
 
@@ -41,7 +39,7 @@ export async function GET(request: Request) {
       .limit(limit);
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Supabase error while fetching published articles:', error);
       throw error;
     }
 
@@ -51,7 +49,7 @@ export async function GET(request: Request) {
       count: data?.length || 0,
     });
   } catch (error) {
-    console.error('Error fetching articles:', error);
+    console.error('Unexpected error while fetching published articles:', error);
 
     // Fallback to mock data
     return NextResponse.json({

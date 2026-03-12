@@ -40,7 +40,6 @@ async function calculateTrend(currentCount: number, tableName: string, dateColum
 
 async function getStats(): Promise<Stats> {
   if (!isSupabaseConfigured()) {
-    console.log('📊 Using mock stats (Supabase not configured)');
     return {
       policyUpdates: 247,
       policyUpdatesTrend: '+23',
@@ -91,7 +90,7 @@ async function getStats(): Promise<Stats> {
       weeklyUpdates: weeklyCount || 0,
     };
   } catch (error) {
-    console.error('Error fetching stats:', error);
+    console.error('Error fetching site statistics:', error);
 
     // Return mock data on error
     return {
@@ -140,7 +139,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error in stats API:', error);
+    console.error('Unexpected error in stats API route:', error);
 
     // Return mock data on error
     return NextResponse.json({

@@ -1,71 +1,28 @@
-## 🎯 Changes
-<!-- Describe your changes in detail -->
+## Summary
 
-## 📋 Jira Issue
-<!-- Link to Jira issue. Use format: GAILP-XXX -->
-**Jira:** GAILP-XXX
-**Link:** https://cortexaillc.atlassian.net/browse/GAILP-XXX
+Describe the change in a few clear sentences.
 
-## 🧪 Testing
-<!-- Describe how you tested these changes -->
+## Tracking
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests passing
-- [ ] Manual testing completed
-- [ ] Tested on multiple browsers/devices (if UI change)
+Issue key or link, if applicable.
 
-## 📚 Documentation
-<!-- Check all that apply -->
+Example: `PROJECT-123`
+If your Jira project still uses the legacy key, reference that actual key instead.
 
-- [ ] Code comments added/updated
-- [ ] README updated (if needed)
-- [ ] API docs updated (if needed)
-- [ ] Confluence page updated: [link]
-- [ ] Migration guide created (if breaking change)
+## Validation
 
-## 🔍 Review Checklist
-<!-- For reviewers and author -->
+- [ ] `pnpm lint`
+- [ ] `pnpm typecheck`
+- [ ] `pnpm test -- --runInBand`
+- [ ] `pnpm build`
+- [ ] Manual testing completed where appropriate
 
-- [ ] Code follows project style guide
-- [ ] No console.log or debug code
-- [ ] No sensitive data (keys, tokens, passwords)
-- [ ] Error handling implemented
-- [ ] Performance considerations addressed
-- [ ] Security vulnerabilities checked
-- [ ] Backward compatible (or breaking changes documented)
-- [ ] Database migrations included (if schema changes)
+## Student-Facing Quality
 
-## 📸 Screenshots
-<!-- If UI changes, add before/after screenshots -->
+- [ ] Comments explain the non-obvious parts of the change
+- [ ] No debug-only logging left in runtime code
+- [ ] Docs were updated if behavior or workflow changed
 
-## 🔗 Related Links
-<!-- Add any related PRs, issues, or documentation -->
+## Risks Or Follow-Up
 
-- Related PR: #XXX
-- Confluence: [page link]
-- Design: [Figma link]
-
-## 🚀 Deployment Notes
-<!-- Any special deployment instructions -->
-
-- [ ] Requires environment variable changes
-- [ ] Requires database migration
-- [ ] Requires manual steps (document below)
-
----
-
-**Type of Change:**
-- [ ] 🐛 Bug fix
-- [ ] ✨ New feature
-- [ ] 🔒 Security fix
-- [ ] ⚡ Performance improvement
-- [ ] ♻️ Refactoring
-- [ ] 📝 Documentation
-- [ ] 🎨 UI/UX
-- [ ] ⚠️ Breaking change
-
----
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
+Note anything reviewers should watch for after merge.

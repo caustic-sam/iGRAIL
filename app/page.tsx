@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -363,14 +364,20 @@ export default function HomePage() {
                   </div>
                 </Card>
               ) : featuredArticle ? (
-                <Link href={`/blog/${featuredArticle.slug}`} key={featuredArticle.id}>
+                <Link href={`/articles/${featuredArticle.slug}`} key={featuredArticle.id}>
                   <Card hover className="overflow-hidden">
                     {featuredArticle.featured_image_url ? (
-                      <div className="w-full h-48 overflow-hidden">
-                        <img
+                      // The wrapper is `relative` so the `fill` image has a containing
+                      // box to anchor itself to. Without that, Next.js would warn and
+                      // the image would not size correctly.
+                      <div className="relative w-full h-48 overflow-hidden">
+                        <Image
                           src={featuredArticle.featured_image_url}
                           alt={featuredArticle.featured_image_alt || featuredArticle.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          unoptimized
+                          sizes="(max-width: 1024px) 100vw, 33vw"
+                          className="object-cover"
                         />
                       </div>
                     ) : (
@@ -462,10 +469,16 @@ export default function HomePage() {
                     >
                       <div className="relative rounded-lg overflow-hidden mb-2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] h-36 flex items-center justify-center">
                         {video.thumbnail ? (
-                          <img
+                          // Video thumbnails behave like decorative cover images. `fill`
+                          // lets them cover the card cleanly while the overlay play button
+                          // stays layered on top.
+                          <Image
                             src={video.thumbnail}
                             alt={video.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            unoptimized
+                            sizes="(max-width: 1024px) 100vw, 25vw"
+                            className="object-cover"
                           />
                         ) : null}
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">

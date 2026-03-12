@@ -83,18 +83,13 @@ export default function NewArticlePage() {
         published_at: action === 'publish' ? new Date().toISOString() : null,
       };
 
-      console.log('📤 Sending article payload:', payload);
-
       const response = await fetch('/api/admin/articles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      console.log('📥 Response status:', response.status);
-
       const data = await response.json();
-      console.log('📥 Response data:', data);
 
       if (response.ok) {
         const actionText = action === 'draft' ? 'saved as draft' : action === 'publish' ? 'published' : 'scheduled';
@@ -103,7 +98,6 @@ export default function NewArticlePage() {
         });
         router.push('/admin');
       } else {
-        console.error('❌ Save failed:', data);
         toast.error('Failed to save article', {
           description: data.error || 'Unknown error',
         });

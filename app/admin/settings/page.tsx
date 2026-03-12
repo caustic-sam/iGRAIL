@@ -1,17 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Eye, EyeOff, Save, RotateCcw } from 'lucide-react';
 import { getFeatureFlags, setFeatureFlags, resetFeatureFlags, FeatureFlags } from '@/lib/feature-flags';
 
 export default function SettingsPage() {
-  const [flags, setFlags] = useState<FeatureFlags>(getFeatureFlags());
+  // We read the initial flag state lazily so React only touches localStorage once
+  // during the first render on the client.
+  const [flags, setFlags] = useState<FeatureFlags>(() => getFeatureFlags());
   const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    setFlags(getFeatureFlags());
-  }, []);
 
   const handleToggle = (key: keyof FeatureFlags) => {
     setFlags(prev => ({ ...prev, [key]: !prev[key] }));
@@ -193,7 +191,7 @@ export default function SettingsPage() {
         <Card className="p-6 bg-blue-50 border-blue-200">
           <h3 className="font-semibold text-blue-900 mb-2">How it works</h3>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Hidden sections won't appear in the navigation menu</li>
+            <li>• Hidden sections won&apos;t appear in the navigation menu</li>
             <li>• Pages remain accessible via direct URL</li>
             <li>• Changes apply to all unauthenticated users</li>
             <li>• Admin users will always see all sections</li>

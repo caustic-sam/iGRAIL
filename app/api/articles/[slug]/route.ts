@@ -15,8 +15,6 @@ export async function GET(
   try {
     // Check if Supabase is configured
     if (!isSupabaseConfigured()) {
-      console.log('📝 Using mock data (Supabase not configured)');
-
       const article = mockArticles.find(a => a.slug === slug);
 
       if (!article) {
@@ -52,7 +50,7 @@ export async function GET(
       source: 'supabase',
     });
   } catch (error) {
-    console.error('Error fetching article:', error);
+    console.error(`Unexpected error while fetching article "${slug}":`, error);
 
     // Try mock data as fallback
     const article = mockArticles.find(a => a.slug === slug);

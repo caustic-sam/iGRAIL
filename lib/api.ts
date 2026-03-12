@@ -44,7 +44,6 @@ export async function getPolicies(options: {
   const { limit = 10, status, region, offset = 0 } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('📋 Using mock policy data');
     return {
       data: mockPolicies.slice(offset, offset + limit),
       count: mockPolicies.length,
@@ -127,7 +126,6 @@ export async function getArticles(options: {
   const { limit = 10, status = 'published', category_id, offset = 0, featured } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('📰 Using mock article data');
     return {
       data: mockArticles.slice(offset, offset + limit),
       count: mockArticles.length,
@@ -139,7 +137,7 @@ export async function getArticles(options: {
     .from('articles')
     .select(`
       *,
-      author:authors(*),
+      author:authors!articles_author_id_fkey(*),
       category:categories(*)
     `, { count: 'exact' })
     .eq('status', status)
@@ -168,7 +166,7 @@ export async function getArticleBySlug(slug: string) {
     .from('articles')
     .select(`
       *,
-      author:authors(*),
+      author:authors!articles_author_id_fkey(*),
       category:categories(*)
     `)
     .eq('slug', slug)
@@ -191,7 +189,6 @@ export async function getVideos(options: {
   const { limit = 10, status = 'published', category_id, offset = 0 } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('🎥 Using mock video data');
     return {
       data: mockVideos.slice(offset, offset + limit),
       count: mockVideos.length,
@@ -249,7 +246,6 @@ export async function getThoughts(options: {
   const { limit = 20, offset = 0 } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('💭 Using mock thought data');
     return {
       data: mockThoughts.slice(offset, offset + limit),
       count: mockThoughts.length,
@@ -282,7 +278,6 @@ export async function getRSSItems(options: {
   const { limit = 20, feed_id, offset = 0 } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('📡 Supabase not configured for RSS items');
     return {
       data: [],
       count: 0,
@@ -313,7 +308,6 @@ export async function getRSSFeeds(options: {
   const { active_only = true } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('📡 Supabase not configured for RSS feeds');
     return {
       data: [],
       error: null,
@@ -345,7 +339,6 @@ export async function getAuthors(options: {
   const { limit = 50, offset = 0 } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('👤 Supabase not configured for authors');
     return {
       data: [],
       count: 0,
@@ -382,7 +375,6 @@ export async function getAuthorById(id: string) {
 
 export async function subscribeToNewsletter(email: string, name?: string) {
   if (!isSupabaseConfigured()) {
-    console.log('📧 Supabase not configured for newsletter');
     return {
       data: null,
       error: { message: 'Database not configured' },
@@ -414,7 +406,6 @@ export async function searchContent(query: string, options: {
   const { types = ['article', 'policy', 'video'], limit = 20 } = options;
 
   if (!isSupabaseConfigured()) {
-    console.log('🔍 Using mock data for search');
     const results = [];
 
     if (types.includes('article')) {
@@ -443,7 +434,7 @@ export async function searchContent(query: string, options: {
   if (types.includes('article')) {
     const { data } = await supabase
       .from('articles')
-      .select('*, author:authors(*)')
+      .select('*, author:authors!articles_author_id_fkey(*)')
       .or(`title.ilike.%${query}%,summary.ilike.%${query}%,content.ilike.%${query}%`)
       .eq('status', 'published')
       .limit(limit);

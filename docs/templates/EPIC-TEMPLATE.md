@@ -1,6 +1,6 @@
 # Epic: [Feature Name]
 
-**Jira Epic:** GAILP-XXX
+**Jira Epic:** PROJECT-123
 **Status:** 🟡 Planning / 🟢 In Progress / 🔵 Review / ✅ Done
 **Owner:** @mention
 **Target Date:** Q1 2026
@@ -37,15 +37,15 @@ Brief description of the epic and its business value. What problem does this sol
 ## 🔗 Related Issues
 
 **Stories in this Epic:**
-- GAILP-XXX: Story 1
-- GAILP-XXX: Story 2
-- GAILP-XXX: Story 3
+- PROJECT-123: Story 1
+- PROJECT-123: Story 2
+- PROJECT-123: Story 3
 
 **Blockers:**
-- GAILP-XXX: Blocker issue
+- PROJECT-123: Blocker issue
 
 **Dependencies:**
-- GAILP-XXX: Required epic/feature
+- PROJECT-123: Required epic/feature
 
 ---
 

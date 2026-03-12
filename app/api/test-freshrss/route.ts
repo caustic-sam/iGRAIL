@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Parser from 'rss-parser';
 import { getFreshRSSClient } from '@/lib/freshrss';
+import { blockProductionDiagnostics } from '@/lib/route-guards';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,13 @@ interface DiagnosticsResponse {
  * Access at: http://localhost:3000/api/test-freshrss
  */
 export async function GET() {
+  // Diagnostic routes are intentionally unavailable in production so they cannot
+  // disclose configuration details or be used as a live probing endpoint.
+  const blockedResponse = blockProductionDiagnostics('/api/test-freshrss');
+  if (blockedResponse) {
+    return blockedResponse;
+  }
+
   const results: DiagnosticsResponse = {
     timestamp: new Date().toISOString(),
     config: {

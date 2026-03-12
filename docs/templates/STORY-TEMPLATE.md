@@ -1,7 +1,7 @@
 # Story: [Story Title]
 
-**Jira Issue:** GAILP-XXX
-**Epic:** GAILP-XXX - Epic Name
+**Jira Issue:** PROJECT-123
+**Epic:** PROJECT-123 - Epic Name
 **Status:** 📋 To Do / 🏗️ In Progress / 👀 Review / ✅ Done
 **Assignee:** @mention
 **Story Points:** 3
@@ -103,13 +103,13 @@ Brief description of implementation approach
 ## 🔗 Dependencies
 
 **Blocked by:**
-- GAILP-XXX: Issue that must complete first
+- PROJECT-123: Issue that must complete first
 
 **Blocks:**
-- GAILP-XXX: Issue blocked by this story
+- PROJECT-123: Issue blocked by this story
 
 **Related:**
-- GAILP-XXX: Related story
+- PROJECT-123: Related story
 - PR #XXX: Related pull request
 
 ---
@@ -153,7 +153,7 @@ API_ENDPOINT=https://api.example.com
 
 ### 2025-11-XX - Started
 - Reviewed requirements
-- Created branch: `feature/GAILP-XXX-story-name`
+- Created branch: `feature/PROJECT-123-story-name`
 - Started implementation
 
 ### 2025-11-XX - In Progress

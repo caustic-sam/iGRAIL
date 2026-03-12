@@ -12,16 +12,14 @@ interface Article {
   id: string;
   title: string;
   slug: string;
-  excerpt: string | null;
+  summary: string | null;
   content: string;
-  status: 'draft' | 'scheduled' | 'published' | 'archived';
   published_at: string | null;
   created_at: string;
-  updated_at: string;
-  author_name: string;
-  view_count: number;
-  featured_image: string | null;
-  tags: string[];
+  author?: {
+    name?: string | null;
+  } | null;
+  featured_image_url: string | null;
 }
 
 export default function BlogPage() {
@@ -31,9 +29,14 @@ export default function BlogPage() {
   useEffect(() => {
     async function fetchPublishedArticles() {
       try {
-        const response = await fetch('/api/admin/articles?status=published');
+        // This is a public-facing page, so it must read from the public API.
+        // Using the admin endpoint would work only for signed-in editors and
+        // would fail for normal visitors after the auth hardening we added.
+        const response = await fetch('/api/articles?limit=3');
         const data = await response.json();
-        // Show only the 3 most recent published articles
+
+        // The public API is already ordered by publish date, but keeping this
+        // sort here makes the page resilient if the API implementation changes.
         const recentArticles = (data.articles || [])
           .sort((a: Article, b: Article) => {
             const dateA = new Date(a.published_at || a.created_at).getTime();
@@ -61,7 +64,7 @@ export default function BlogPage() {
   };
 
   const getExcerpt = (article: Article) => {
-    if (article.excerpt) return article.excerpt;
+    if (article.summary) return article.summary;
     if (!article.content) return 'No content available...';
     // Fallback: extract first 150 characters from content
     const plainText = article.content.replace(/<[^>]*>/g, '');
@@ -99,10 +102,10 @@ export default function BlogPage() {
               <Link key={article.id} href={`/articles/${article.slug}`}>
                 <Card hover className="h-full flex flex-col overflow-hidden">
                   {/* Featured Image */}
-                  {article.featured_image ? (
+                  {article.featured_image_url ? (
                     <div className="relative w-full h-48 overflow-hidden">
                       <Image
-                        src={article.featured_image}
+                        src={article.featured_image_url}
                         alt={article.title}
                         fill
                         sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
@@ -122,7 +125,7 @@ export default function BlogPage() {
                     <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
                       <div className="flex items-center gap-1">
                         <User className="w-4 h-4" />
-                        <span>{article.author_name}</span>
+                        <span>{article.author?.name || 'iGRAIL Editorial'}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
@@ -139,21 +142,6 @@ export default function BlogPage() {
                     <p className="text-gray-600 mb-4 line-clamp-3 flex-1">
                       {getExcerpt(article)}
                     </p>
-
-                    {/* Tags */}
-                    {article.tags && article.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {article.tags.slice(0, 3).map((tag, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
                     {/* Read More */}
                     <div className="flex items-center gap-2 text-blue-600 font-medium hover:gap-3 transition-all">
                       <span>Read More</span>

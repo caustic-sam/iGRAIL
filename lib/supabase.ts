@@ -28,6 +28,7 @@ function isValidHttpUrl(value: string): boolean {
 const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const rawAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const hasValidPublicSupabaseConfig = isValidHttpUrl(rawUrl) && Boolean(rawAnonKey);
 
 const supabaseUrl = isValidHttpUrl(rawUrl) ? rawUrl : FALLBACK_SUPABASE_URL;
 const supabaseAnonKey = rawAnonKey || FALLBACK_SUPABASE_ANON_KEY;
@@ -264,5 +265,14 @@ export interface NewsletterSubscriber {
 
 // Helper function to check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  return !!(supabaseUrl && supabaseAnonKey);
+  // We intentionally check the *raw* environment variables here.
+  //
+  // Why this matters:
+  // - `supabaseUrl` and `supabaseAnonKey` can contain placeholder fallback values
+  // - placeholder values are useful for avoiding crashes during imports
+  // - placeholder values should NOT be treated as "real configuration"
+  //
+  // In other words, "client can be constructed" is not the same thing as
+  // "the application is actually configured to talk to a real Supabase project."
+  return hasValidPublicSupabaseConfig;
 };

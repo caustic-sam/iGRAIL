@@ -58,14 +58,11 @@ export default function EditArticlePage() {
   useEffect(() => {
     async function fetchArticle() {
       try {
-        console.log('📥 Fetching article:', articleId);
         const response = await fetch(`/api/admin/articles/${articleId}`);
         const data = await response.json();
 
         if (response.ok && data.article) {
           const article = data.article;
-          console.log('✅ Article loaded:', article.title);
-
           setFormData({
             title: article.title || '',
             slug: article.slug || '',
@@ -80,11 +77,10 @@ export default function EditArticlePage() {
             scheduled_for: article.scheduled_for || '',
           });
         } else {
-          console.error('❌ Failed to load article:', data.error);
           alert(`Failed to load article: ${data.error || 'Unknown error'}`);
         }
       } catch (error) {
-        console.error('❌ Error fetching article:', error);
+        console.error('Error fetching article for the edit screen:', error);
         alert(`Error loading article: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
@@ -124,18 +120,13 @@ export default function EditArticlePage() {
         published_at: action === 'publish' ? new Date().toISOString() : null,
       };
 
-      console.log('📤 Updating article:', articleId, payload);
-
       const response = await fetch(`/api/admin/articles/${articleId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      console.log('📥 Response status:', response.status);
-
       const data = await response.json();
-      console.log('📥 Response data:', data);
 
       if (response.ok) {
         // Show success message
@@ -143,11 +134,10 @@ export default function EditArticlePage() {
         alert(`✅ Article ${actionText}!\n\nID: ${data.article?.id}\nSource: ${data.source}`);
         router.push('/admin');
       } else {
-        console.error('❌ Update failed:', data);
         alert(`❌ Error: ${data.error || 'Failed to update article'}\n\nDetails: ${JSON.stringify(data.details || {}, null, 2)}`);
       }
     } catch (error) {
-      console.error('❌ Error updating article:', error);
+      console.error('Error updating article from the edit screen:', error);
       alert(`❌ Failed to update article.\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}\n\nCheck browser console for details.`);
     } finally {
       setSaving(false);
@@ -192,7 +182,7 @@ export default function EditArticlePage() {
       // Redirect to dashboard after successful delete
       router.push('/admin');
     } catch (error) {
-      console.error('❌ Error deleting article:', error);
+      console.error('Error deleting article from the edit screen:', error);
       toast.error('Failed to delete article', {
         description: error instanceof Error ? error.message : 'Please try again',
       });

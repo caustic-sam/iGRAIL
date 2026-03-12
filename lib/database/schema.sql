@@ -1,4 +1,4 @@
--- World Papers Database Schema
+-- iGRAIL Database Schema
 -- PostgreSQL/Supabase
 -- Created: 2024-10-31
 

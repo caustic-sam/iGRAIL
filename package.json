@@ -1,8 +1,8 @@
 {
-  "name": "world-papers-nextjs",
+  "name": "igrail",
   "version": "0.2.0",
   "private": true,
-  "description": "Independent analysis of global digital policy, data governance, and identity frameworks",
+  "description": "Policy intelligence for AI, identity, interoperability, and digital governance",
   "author": "Wren / CortexAI",
   "license": "MIT",
   "packageManager": "pnpm@9.12.0",
@@ -13,9 +13,9 @@
   "scripts": {
     "preinstall": "corepack enable",
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,md,mdx}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md,mdx}\"",

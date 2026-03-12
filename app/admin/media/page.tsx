@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useCallback, useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { SkeletonGrid } from '@/components/ui/Skeleton';
 import {
@@ -40,24 +41,11 @@ export default function MediaVaultPage() {
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
   const supabase = createClientComponentClient();
 
-  console.log('💡 MediaVaultPage component rendered');
-  console.log('💡 Supabase client initialized:', !!supabase);
-
-  useEffect(() => {
-    console.log('🔄 Media page mounted, starting fetchFiles...');
-    // Force a fresh fetch on every mount
-    setLoading(true);
-    setFiles([]);
-    fetchFiles().catch(err => {
-      console.error('❌ fetchFiles failed:', err);
-      setLoading(false);
-    });
-  }, []); // Empty array means run on mount/unmount only
-
-  const fetchFiles = async () => {
+  // We wrap this loader in `useCallback` because the effect below depends on it.
+  // Without `useCallback`, React would create a brand-new function on every render,
+  // the effect would see that as a dependency change, and we could refetch in a loop.
+  const fetchFiles = useCallback(async () => {
     try {
-      console.log('📂 Fetching files from media bucket...');
-
       const { data, error } = await supabase
         .storage
         .from('media')
@@ -68,32 +56,18 @@ export default function MediaVaultPage() {
         });
 
       if (error) {
-        console.error('❌ Error fetching files:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
+        console.error('Error fetching files from Supabase storage:', error);
         setFiles([]);
         return;
       }
 
-      console.log('✅ Files fetched:', data?.length || 0);
-      console.log('Raw data:', JSON.stringify(data, null, 2));
-
       // Filter out folders (items with null id or null metadata) and map to files
-      const filesOnly = (data || []).filter(item => {
-        const isFile = item.id !== null && item.metadata !== null;
-        if (!isFile) {
-          console.log('Filtering out folder/null:', item.name);
-        }
-        return isFile;
-      });
-
-      console.log('Files after filtering:', filesOnly.length);
+      const filesOnly = (data || []).filter(item => item.id !== null && item.metadata !== null);
 
       const filesWithUrls = filesOnly.map(file => {
         const { data: urlData } = supabase.storage
           .from('media')
           .getPublicUrl(file.name);
-
-        console.log('Generated URL for', file.name, ':', urlData.publicUrl);
 
         // Add cache-busting timestamp to ensure fresh images
         const urlWithCacheBust = `${urlData.publicUrl}?t=${Date.now()}`;
@@ -109,15 +83,23 @@ export default function MediaVaultPage() {
       });
 
       setFiles(filesWithUrls);
-      console.log('✅ Files state updated with', filesWithUrls.length, 'items');
-      console.log('First file:', filesWithUrls[0]);
     } catch (error) {
-      console.error('❌ Exception:', error);
+      console.error('Unexpected error while loading media files:', error);
       setFiles([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    // Force a fresh fetch on every mount
+    setLoading(true);
+    setFiles([]);
+    fetchFiles().catch(err => {
+      console.error('Media file refresh failed:', err);
+      setLoading(false);
+    });
+  }, [fetchFiles]);
 
   const uploadFiles = async (fileList: FileList) => {
     if (!fileList || fileList.length === 0) return;
@@ -125,34 +107,27 @@ export default function MediaVaultPage() {
     setUploading(true);
 
     try {
-      console.log('📤 Uploading', fileList.length, 'file(s)...');
-
       for (const file of Array.from(fileList)) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
 
-        console.log('📤 Uploading:', fileName, '(', file.size, 'bytes)');
-
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from('media')
           .upload(fileName, file);
 
         if (error) {
-          console.error('❌ Upload error for', fileName, ':', error);
-          console.error('Error details:', JSON.stringify(error, null, 2));
+          console.error(`Upload failed for media file "${fileName}":`, error);
           toast.error('Upload failed', { description: error.message });
         } else {
-          console.log('✅ Uploaded:', fileName);
           toast.success('File uploaded', { description: fileName });
         }
       }
 
-      console.log('🔄 Refreshing file list after upload...');
       setLoading(true);
       await fetchFiles();
       toast.success('Upload complete', { description: `${fileList.length} file(s) uploaded successfully` });
     } catch (error) {
-      console.error('❌ Upload exception:', error);
+      console.error('Unexpected error while uploading media files:', error);
       toast.error('Upload failed', { description: error instanceof Error ? error.message : 'Unknown error' });
     } finally {
       setUploading(false);
@@ -194,24 +169,20 @@ export default function MediaVaultPage() {
     if (!confirm(`Delete ${fileName}?`)) return;
 
     try {
-      console.log('🗑️ Deleting:', fileName);
-
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('media')
         .remove([fileName]);
 
       if (error) {
-        console.error('❌ Delete error:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
+        console.error(`Delete failed for media file "${fileName}":`, error);
         toast.error('Delete failed', { description: error.message });
         return;
       }
 
-      console.log('✅ Deleted:', fileName);
       toast.success('File deleted', { description: fileName });
       await fetchFiles();
     } catch (error) {
-      console.error('❌ Delete exception:', error);
+      console.error('Unexpected error while deleting a media file:', error);
       toast.error('Delete failed', { description: error instanceof Error ? error.message : 'Unknown error' });
     }
   };
@@ -360,15 +331,21 @@ export default function MediaVaultPage() {
               <Card key={file.id} className="p-2 hover:shadow-lg transition-shadow">
                 {/* Preview */}
                 <div
-                  className="aspect-square bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
+                  className="relative aspect-square bg-gray-100 rounded-lg mb-2 flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all"
                   onClick={() => setSelectedFile(file)}
                   title="Click to view details"
                 >
                   {file.type.startsWith('image/') ? (
-                    <img
+                    // `fill` tells Next.js to absolutely position the image and stretch it
+                    // to this wrapper. That only works because the wrapper is `relative`
+                    // and has a real size from `aspect-square`.
+                    <Image
                       src={file.url}
                       alt={file.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      unoptimized
+                      sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 12vw"
+                      className="object-cover"
                     />
                   ) : (
                     <div className="text-gray-400">
@@ -459,9 +436,15 @@ export default function MediaVaultPage() {
             {/* Image Preview */}
             <div className="p-6 flex items-center justify-center bg-gray-50">
               {selectedFile.type.startsWith('image/') ? (
-                <img
+                // The modal preview uses the same `fill` pattern as the grid preview:
+                // parent establishes the box, image fills it, `object-contain` prevents
+                // cropping so editors can inspect the full asset.
+                <Image
                   src={selectedFile.url}
                   alt={selectedFile.name}
+                  width={1600}
+                  height={1200}
+                  unoptimized
                   className="max-w-full max-h-[60vh] object-contain rounded-lg"
                 />
               ) : (

@@ -20,7 +20,7 @@ export async function GET() {
     const health = {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      service: 'world-papers',
+      service: 'igrail',
       version: process.env.npm_package_version || '0.2.0',
       uptime: process.uptime(),
       environment: process.env.NODE_ENV || 'development',

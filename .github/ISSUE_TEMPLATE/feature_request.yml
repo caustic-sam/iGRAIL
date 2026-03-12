@@ -13,7 +13,7 @@ body:
     attributes:
       label: Jira Epic/Story
       description: If this feature is already planned in Jira, link it here
-      placeholder: GAILP-XXX
+      placeholder: PROJECT-123
     validations:
       required: false
 

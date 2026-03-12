@@ -53,7 +53,9 @@ export default function StudioPage() {
         setStats({
           publishedArticles: publishedCount,
           mediaFiles: mediaCount,
-          components: 0, // TODO: Count from component registry
+          // The component gallery does not have a registry-backed data source yet,
+          // so we return `0` explicitly rather than inventing a misleading number.
+          components: 0,
           drafts: draftCount
         });
       } catch (error) {

@@ -61,6 +61,11 @@ __pycache__/
 *.swp
 *.swo
 *~
+.env.local.backup.*
+*.old
+*.zip
+audit-report.json
+coverage/
 
 # Local research sandbox (kept outside repo and deployments)
 NIST_LLM/

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { Home, FileText, Users, BookOpen, Mail, LayoutDashboard, Image, Settings, Edit3 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,18 +34,18 @@ export function RightSidebar() {
   const { user } = useAuth();
   // Simplified for MVP - only admin has access to admin features
   const isAdmin = user && user.role === 'admin';
-  const [publicNavItems, setPublicNavItems] = useState(allPublicNavItems);
+  // This list is derived entirely from existing inputs (`isAdmin` + feature
+  // flags), so we compute it directly instead of copying it into React state.
+  // Derived values are easier for junior developers to reason about because
+  // there is only one source of truth.
+  const flags = getFeatureFlags();
+  const publicNavItems = allPublicNavItems.filter(item => {
+    if (!item.flagKey || isAdmin) {
+      return true;
+    }
 
-  useEffect(() => {
-    const flags = getFeatureFlags();
-    const filtered = allPublicNavItems.filter(item => {
-      // Always show items without flags or if user is admin
-      if (!item.flagKey || isAdmin) return true;
-      // For non-admin users, check the flag
-      return flags[item.flagKey];
-    });
-    setPublicNavItems(filtered);
-  }, [isAdmin]);
+    return flags[item.flagKey];
+  });
 
   return (
     <aside className="hidden lg:block fixed right-0 top-12 h-[calc(100vh-3rem)] w-12 hover:w-56 overflow-y-auto bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] border-l border-blue-900/20 z-40 transition-all duration-300 group">
