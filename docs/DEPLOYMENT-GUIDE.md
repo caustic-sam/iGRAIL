@@ -47,13 +47,40 @@ For students:
 
 That is why the build step is not optional.
 
-## Deployment Flow
+## GitHub-First Production Flow
+
+This repo now supports a cleaner deployment path:
+
+1. Work on a feature branch.
+2. Open a pull request into `main`.
+3. Let the `Tests` workflow pass in GitHub.
+4. Merge the PR into `main`.
+5. GitHub automatically triggers the production Vercel deployment after the `Tests` workflow has already succeeded on that merged commit.
+
+For students:
+
+- this keeps deployment decisions attached to Git history
+- it avoids the "tests are green locally, but I deployed something else" problem
+- it makes the deploy commit explicit, reviewable, and easy to roll back
+
+## Required GitHub Settings
+
+The workflow file alone is not enough. Set this in the GitHub repository settings:
+
+1. Protect the `main` branch.
+2. Require pull requests before merging.
+3. Require the status checks from the `Tests` workflow before merge.
+4. Optionally require one review approval if you want a human gate before production.
+
+If your Vercel project is also using direct Git-based auto-deploys, disable that path or you will create duplicate production deployments.
+
+## Local Pre-Merge Flow
 
 1. Confirm your working tree is intentional.
 2. Run `pnpm validate`.
 3. Run `pnpm build`.
-4. Push the branch or deploy through your normal Vercel workflow.
-5. Run the post-deployment checklist.
+4. Push your branch and open the PR.
+5. After merge, run the post-deployment checklist.
 
 ## Post-Deployment Smoke Areas
 
