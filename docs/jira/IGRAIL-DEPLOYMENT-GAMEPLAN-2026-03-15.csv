@@ -1,0 +1,132 @@
+"Summary","Issue Type","Priority","Status","Labels","Component/s","Epic Name","Epic Link","Description"
+"iGRAIL Deployment Readiness - March 15, 2026","Epic","Highest","To Do","igrail,deployment,release","Infrastructure","iGRAIL Deployment Readiness","","
+Mission:
+- Stand up public deployment infrastructure for iGRAIL
+- remove avoidable LAN dependencies
+- prove the GitHub-gated production path with one small safe release
+
+Definition of done:
+- dedicated Vercel project exists
+- dedicated Supabase production boundary exists
+- GitHub gates production deployment
+- required secrets and env vars are configured
+- one small PR deploys successfully after merge to main
+" 
+"Create dedicated Vercel project for iGRAIL","Task","Highest","To Do","igrail,deployment,vercel","Infrastructure","","iGRAIL Deployment Readiness","
+Create a separate Vercel project for the iGRAIL application.
+
+Acceptance notes:
+- project is not shared with unrelated apps
+- production domain strategy is confirmed
+- VERCEL_PROJECT_ID and VERCEL_ORG_ID are captured
+" 
+"Configure Vercel production environment variables for iGRAIL","Task","Highest","To Do","igrail,deployment,vercel,secrets","Infrastructure","","iGRAIL Deployment Readiness","
+Populate the iGRAIL Vercel project with required app environment variables.
+
+Required variables:
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- NEXT_PUBLIC_SITE_URL
+- QUICK_POST_SECRET
+
+Optional:
+- FRESHRSS_API_URL
+- FRESHRSS_API_USERNAME
+- FRESHRSS_API_PASSWORD
+- FRESHRSS_RSS_URL
+" 
+"Configure GitHub secrets for Vercel deployment workflow","Task","Highest","To Do","igrail,deployment,github,vercel,secrets","Infrastructure","","iGRAIL Deployment Readiness","
+Add the GitHub repository secrets used by the production deployment workflow.
+
+Required:
+- VERCEL_TOKEN
+- VERCEL_ORG_ID
+- VERCEL_PROJECT_ID
+" 
+"Protect main and require GitHub checks before production release","Task","Highest","To Do","igrail,deployment,github,branch-protection","Release Management","","iGRAIL Deployment Readiness","
+Configure GitHub branch protection so production deployments remain GitHub-gated.
+
+Acceptance notes:
+- main is protected
+- PRs are required before merge
+- Tests workflow is required before merge
+- optional review gate enabled if desired
+" 
+"Disable duplicate Vercel direct production deploy path","Task","High","To Do","igrail,deployment,vercel","Release Management","","iGRAIL Deployment Readiness","
+If Vercel direct Git production auto-deploy is enabled, disable it so GitHub Actions remains the single release gate.
+
+Reason:
+- avoids duplicate production deployments
+- keeps release authority in GitHub history
+" 
+"Create dedicated Supabase production project for iGRAIL","Task","Highest","To Do","igrail,deployment,supabase","Backend","","iGRAIL Deployment Readiness","
+Create a dedicated Supabase production project for iGRAIL.
+
+Acceptance notes:
+- not shared with unrelated apps
+- production keys are captured and stored in the correct systems
+" 
+"Choose and create non-production Supabase environment for iGRAIL","Task","High","To Do","igrail,deployment,supabase,staging","Backend","","iGRAIL Deployment Readiness","
+Create or choose the non-production Supabase path for safe testing.
+
+Acceptable options:
+- separate staging project
+- separate dev project
+- managed branching strategy
+" 
+"Configure Supabase auth redirect URLs for local and production","Task","High","To Do","igrail,deployment,supabase,auth","Backend","","iGRAIL Deployment Readiness","
+Configure Supabase auth so OAuth callbacks work in both local development and production.
+
+Acceptance notes:
+- local redirect URL works
+- production redirect URL works
+- no stale production URL assumptions remain in auth flow
+" 
+"Run Supabase schema parity audit for public content fields","Task","High","To Do","igrail,deployment,supabase,schema","Backend","","iGRAIL Deployment Readiness","
+Verify that the live schema matches the app assumptions for public content rendering.
+
+Known focus area:
+- authors table fields
+- especially any mismatch around title or profile metadata
+" 
+"Seed at least one published featured article for public QA","Task","High","To Do","igrail,content,qa","Content","","iGRAIL Deployment Readiness","
+Seed one published and featured article so the homepage and Think Tank surfaces can be validated visually.
+
+Acceptance notes:
+- article appears on public surfaces
+- no mock fallback is needed for basic public reading QA
+" 
+"Decide FreshRSS production strategy and move it off LAN if needed","Task","High","To Do","igrail,deployment,freshrss,infra","Integrations","","iGRAIL Deployment Readiness","
+Make an explicit production decision for FreshRSS.
+
+Options:
+- public endpoint
+- tunnel or reverse proxy
+- deliberate temporary mock fallback
+
+Current issue:
+- local testing showed LAN-only dependency behavior
+" 
+"Audit video feed configuration and validate YouTube source IDs","Task","Medium","To Do","igrail,deployment,video,feeds","Integrations","","iGRAIL Deployment Readiness","
+Validate the current video ingest configuration and correct any broken YouTube source identifiers before relying on production video sync.
+" 
+"Run first GitHub-gated production deployment smoke test","Task","Highest","To Do","igrail,deployment,smoke-test","Release Management","","iGRAIL Deployment Readiness","
+Use a tiny documentation-only or copy-only PR to prove the deployment path.
+
+Required sequence:
+- branch
+- tiny change
+- validate and build locally
+- PR
+- GitHub tests
+- merge to main
+- automatic production deployment
+- smoke check
+" 
+"Refresh baseline-browser-mapping dependency warning","Task","Low","To Do","igrail,deployment,dependencies","Maintenance","","iGRAIL Deployment Readiness","
+Update the stale baseline-browser-mapping dependency and rerun validation so the remaining non-blocking warning is cleared.
+" 
+"Create stable demo dataset for local QA and student onboarding","Task","Medium","Backlog","igrail,qa,onboarding,data","Content","","iGRAIL Deployment Readiness","
+Create a reliable demo dataset for articles, feeds, and media so regression testing and student onboarding use the same known-good content set.
+" 

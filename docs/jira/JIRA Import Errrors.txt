@@ -1,0 +1,51 @@
+2026-03-14 07:55:57,261 INFO - Importer started!
+2026-03-14 07:55:57,261 INFO - Engine is running in Import mode
+2026-03-14 07:55:57,386 INFO - All issues will be imported to project: iGRAIL  (IG)
+2026-03-14 07:55:57,409 INFO - Creating issue: [externalId='autoid--871596485087889047', summary='iGRAIL Deployment Readiness - March 15, 2026']
+2026-03-14 07:55:57,416 WARN - The version Infrastructure doesn't exist in this project and can't be added
+2026-03-14 07:55:59,786 INFO - Issue created successfully with Key [IG-1], [externalId='autoid--871596485087889047', summary='iGRAIL Deployment Readiness - March 15, 2026']
+2026-03-14 07:55:59,800 INFO - Creating issue: [externalId='autoid--7015627043965013635', summary='Create dedicated Vercel project for iGRAIL']
+2026-03-14 07:55:59,800 WARN - The version Infrastructure doesn't exist in this project and can't be added
+2026-03-14 07:56:00,879 INFO - Issue created successfully with Key [IG-2], [externalId='autoid--7015627043965013635', summary='Create dedicated Vercel project for iGRAIL']
+2026-03-14 07:56:00,897 INFO - Creating issue: [externalId='autoid-7374950383779967642', summary='Configure Vercel production environment variables for iGRAIL']
+2026-03-14 07:56:00,897 WARN - The version Infrastructure doesn't exist in this project and can't be added
+2026-03-14 07:56:02,150 INFO - Issue created successfully with Key [IG-3], [externalId='autoid-7374950383779967642', summary='Configure Vercel production environment variables for iGRAIL']
+2026-03-14 07:56:02,161 INFO - Creating issue: [externalId='autoid-8267576760832824771', summary='Configure GitHub secrets for Vercel deployment workflow']
+2026-03-14 07:56:02,161 WARN - The version Infrastructure doesn't exist in this project and can't be added
+2026-03-14 07:56:03,155 INFO - Issue created successfully with Key [IG-4], [externalId='autoid-8267576760832824771', summary='Configure GitHub secrets for Vercel deployment workflow']
+2026-03-14 07:56:03,166 INFO - Creating issue: [externalId='autoid-3310543348548730392', summary='Protect main and require GitHub checks before production release']
+2026-03-14 07:56:03,166 WARN - The version Release Management doesn't exist in this project and can't be added
+2026-03-14 07:56:04,141 INFO - Issue created successfully with Key [IG-5], [externalId='autoid-3310543348548730392', summary='Protect main and require GitHub checks before production release']
+2026-03-14 07:56:04,153 INFO - Creating issue: [externalId='autoid-6210561145652180041', summary='Disable duplicate Vercel direct production deploy path']
+2026-03-14 07:56:04,153 WARN - The version Release Management doesn't exist in this project and can't be added
+2026-03-14 07:56:05,651 INFO - Issue created successfully with Key [IG-6], [externalId='autoid-6210561145652180041', summary='Disable duplicate Vercel direct production deploy path']
+2026-03-14 07:56:05,663 INFO - Creating issue: [externalId='autoid-8290987002714187401', summary='Create dedicated Supabase production project for iGRAIL']
+2026-03-14 07:56:05,663 WARN - The version Backend doesn't exist in this project and can't be added
+2026-03-14 07:56:06,527 INFO - Issue created successfully with Key [IG-7], [externalId='autoid-8290987002714187401', summary='Create dedicated Supabase production project for iGRAIL']
+2026-03-14 07:56:06,537 INFO - Creating issue: [externalId='autoid--1025267481707663753', summary='Choose and create non-production Supabase environment for iGRAIL']
+2026-03-14 07:56:06,538 WARN - The version Backend doesn't exist in this project and can't be added
+2026-03-14 07:56:07,743 INFO - Issue created successfully with Key [IG-8], [externalId='autoid--1025267481707663753', summary='Choose and create non-production Supabase environment for iGRAIL']
+2026-03-14 07:56:07,759 INFO - Creating issue: [externalId='autoid--3951542187996058164', summary='Configure Supabase auth redirect URLs for local and production']
+2026-03-14 07:56:07,759 WARN - The version Backend doesn't exist in this project and can't be added
+2026-03-14 07:56:08,772 INFO - Issue created successfully with Key [IG-9], [externalId='autoid--3951542187996058164', summary='Configure Supabase auth redirect URLs for local and production']
+2026-03-14 07:56:08,785 INFO - Creating issue: [externalId='autoid-5842926375995175902', summary='Run Supabase schema parity audit for public content fields']
+2026-03-14 07:56:08,785 WARN - The version Backend doesn't exist in this project and can't be added
+2026-03-14 07:56:09,781 INFO - Issue created successfully with Key [IG-10], [externalId='autoid-5842926375995175902', summary='Run Supabase schema parity audit for public content fields']
+2026-03-14 07:56:09,793 INFO - Creating issue: [externalId='autoid-4622619642093093162', summary='Seed at least one published featured article for public QA']
+2026-03-14 07:56:09,793 WARN - The version Content doesn't exist in this project and can't be added
+2026-03-14 07:56:10,733 INFO - Issue created successfully with Key [IG-11], [externalId='autoid-4622619642093093162', summary='Seed at least one published featured article for public QA']
+2026-03-14 07:56:10,746 INFO - Creating issue: [externalId='autoid-1335039252269675404', summary='Decide FreshRSS production strategy and move it off LAN if needed']
+2026-03-14 07:56:10,746 WARN - The version Integrations doesn't exist in this project and can't be added
+2026-03-14 07:56:11,726 INFO - Issue created successfully with Key [IG-12], [externalId='autoid-1335039252269675404', summary='Decide FreshRSS production strategy and move it off LAN if needed']
+2026-03-14 07:56:11,738 INFO - Creating issue: [externalId='autoid--4134944814719402805', summary='Audit video feed configuration and validate YouTube source IDs']
+2026-03-14 07:56:11,738 WARN - The version Integrations doesn't exist in this project and can't be added
+2026-03-14 07:56:12,725 INFO - Issue created successfully with Key [IG-13], [externalId='autoid--4134944814719402805', summary='Audit video feed configuration and validate YouTube source IDs']
+2026-03-14 07:56:12,735 INFO - Creating issue: [externalId='autoid-2153450392147627681', summary='Run first GitHub-gated production deployment smoke test']
+2026-03-14 07:56:12,735 WARN - The version Release Management doesn't exist in this project and can't be added
+2026-03-14 07:56:13,594 INFO - Issue created successfully with Key [IG-14], [externalId='autoid-2153450392147627681', summary='Run first GitHub-gated production deployment smoke test']
+2026-03-14 07:56:13,606 INFO - Creating issue: [externalId='autoid--6970205204157238677', summary='Refresh baseline-browser-mapping dependency warning']
+2026-03-14 07:56:13,606 WARN - The version Maintenance doesn't exist in this project and can't be added
+2026-03-14 07:56:14,579 INFO - Issue created successfully with Key [IG-15], [externalId='autoid--6970205204157238677', summary='Refresh baseline-browser-mapping dependency warning']
+2026-03-14 07:56:14,591 INFO - Creating issue: [externalId='autoid--8656379160571813854', summary='Create stable demo dataset for local QA and student onboarding']
+2026-03-14 07:56:14,591 WARN - The version Content doesn't exist in this project and can't be added
+2026-03-14 07:56:15,436 INFO - Issue created successfully with Key [IG-16], [externalId='autoid--8656379160571813854', summary='Create stable demo dataset for local QA and student onboarding']

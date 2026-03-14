@@ -23,6 +23,24 @@ This file is the short onboarding guide for any coding agent working in iGRAIL.
 - Normal runtime paths should avoid noisy `console.log` output.
 - Comments should teach, especially around auth, React effects, and framework conventions.
 
+## Next Session Reminder
+
+- Revisit the Jira CSV import before the next planning/admin pass.
+- The import logged in [docs/jira/JIRA Import Errrors.txt](/Users/jm/Projects/iGRAIL/docs/jira/JIRA%20Import%20Errrors.txt) mostly succeeded:
+  - Epic `IG-1` and tasks `IG-2` through `IG-16` were created.
+  - Jira also warned that values such as `Infrastructure`, `Backend`, `Integrations`, `Content`, `Maintenance`, and `Release Management` did not exist in the target project.
+- The practical meaning is that the current CSV shape is usable, but the `Component/s` column mapping did not match the project configuration.
+- On the next Jira-import pass, do one of these on purpose:
+  - pre-create the matching Jira components or versions in the `IG` project
+  - remove that column from the import file
+  - or remap that column during import so Jira does not treat those values as missing project metadata
+
+For students:
+
+- an import warning that still creates issues is not harmless noise
+- it usually means the data model in the CSV does not match the project configuration
+- record that mismatch immediately so the next import is deliberate instead of guesswork
+
 ## Documentation Policy
 
 Active docs live in `docs/`.
