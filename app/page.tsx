@@ -101,38 +101,38 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 py-8 min-h-[140px]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        <div className="max-w-7xl mx-auto px-6 py-6 min-h-[100px]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
             {/* Left: Content */}
             <div className="relative z-10">
-              <div className="text-sm font-semibold text-blue-300 uppercase tracking-widest mb-3">iGRAIL</div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight bg-gradient-to-r from-gray-100 via-gray-50 to-gray-200 bg-clip-text text-transparent drop-shadow-sm">
+              <div className="text-xs font-semibold text-blue-300 uppercase tracking-widest mb-1">iGRAIL</div>
+              <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight bg-gradient-to-r from-gray-100 via-gray-50 to-gray-200 bg-clip-text text-transparent drop-shadow-sm">
                 Navigating the Future of<br />Digital Policy
               </h1>
-              <p className="text-lg text-blue-100 mb-8 max-w-2xl">
+              <p className="text-sm text-blue-100 mb-3 max-w-2xl">
                 Your trusted source for comprehensive analysis, expert insights, and real-time updates on global digital governance, data protection, and identity policies.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3">
                 <Link href="/blog">
-                  <Button size="lg" variant="accent">Explore Insights</Button>
+                  <Button size="sm" variant="accent">Explore Insights</Button>
                 </Link>
                 {/* IG-23: Replaced fake "Join Community" CTA with a real link to our published articles */}
                 <Link href="/articles">
-                  <Button size="lg" variant="accent">Read The Observatory</Button>
+                  <Button size="sm" variant="accent">Read The Observatory</Button>
                 </Link>
                 <button
                   onClick={handleRefreshAll}
                   aria-label="Refresh all live feeds"
-                  className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition-all flex items-center gap-2 border border-white/20"
+                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg transition-all flex items-center gap-2 border border-white/20"
                 >
-                  <RefreshCw className="w-5 h-5" />
+                  <RefreshCw className="w-4 h-4" />
                   Refresh Feeds
                 </button>
               </div>
             </div>
 
             {/* Right: Data Boxes - Now visible on all screens */}
-            <div className="relative z-10 mt-8 lg:mt-0">
+            <div className="relative z-10 mt-4 lg:mt-0">
               <DataBoxes />
             </div>
           </div>
