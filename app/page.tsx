@@ -6,7 +6,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import {
-  Globe, Mail, Twitter, Linkedin, Rss, ArrowRight,
+  Globe, Mail, Rss, ArrowRight,
   MessageCircle, Clock, Play, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -20,8 +20,8 @@ import { DataBoxes } from '@/components/widgets/DataBoxes';
 import { FeedCard } from '@/components/FeedCard';
 import { GlobalFeedStream } from '@/components/GlobalFeedStream';
 
-import { ComingSoonModal } from '@/components/ui/ComingSoonModal';
-import { useComingSoon } from '@/hooks/useComingSoon';
+// ComingSoonModal and useComingSoon removed — IG-21/22/23/24/26 eliminated
+// all Coming Soon triggers from the homepage. Nothing calls showComingSoon() anymore.
 
 const AnimatedGlobe = dynamic(
   () => import('@/components/AnimatedGlobe').then((m) => ({ default: m.AnimatedGlobe })),
@@ -29,7 +29,6 @@ const AnimatedGlobe = dynamic(
 );
 
 export default function HomePage() {
-  const { isOpen, feature, showComingSoon, closeModal } = useComingSoon();
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<'All Updates' | 'Data' | 'Digital ID'>('All Updates');
   const [featuredArticle, setFeaturedArticle] = React.useState<any>(null);
@@ -482,10 +481,16 @@ export default function HomePage() {
       {/* Resource Library removed — IG-24: all three cards (Policy Templates, Research Reports, Expert Network)
            triggered Coming Soon modals and had no real content behind them */}
 
-      {/* Footer */}
+      {/* Footer — IG-26: stripped back to real links only.
+           Removed: Live Hub, Resources Library, Policy Database, Digital Identity,
+           AI Governance, Cross-Border Data, Newsletter, Privacy Policy, Cookie Settings,
+           Terms of Service (all Coming Soon), and social icons (no accounts yet).
+           Updated © to 2026. Added Cortex AI production credit. */}
       <footer className="bg-[#1a2332] text-gray-300 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+
+            {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
@@ -494,65 +499,44 @@ export default function HomePage() {
                 <span className="text-white font-bold">iGRAIL</span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">
-                Your trusted source for comprehensive digital policy intelligence, expert analysis, and professional insights.
+                Decision-grade intelligence for boards, counsel, and compliance leaders navigating global AI governance.
               </p>
             </div>
-            
-            <div>
-              <h3 className="text-white font-semibold mb-3">Platform</h3>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/policy-updates" className="hover:text-white transition-colors">Policy Updates</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Expert Analysis</Link></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Live Hub'); }} className="hover:text-white transition-colors cursor-pointer">Live Hub</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Resources Library'); }} className="hover:text-white transition-colors cursor-pointer">Resources Library</a></li>
-              </ul>
-            </div>
 
+            {/* Navigation — real pages only */}
             <div>
-              <h3 className="text-white font-semibold mb-3">Research</h3>
+              <h3 className="text-white font-semibold mb-3">The Observatory</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Policy Database'); }} className="hover:text-white transition-colors cursor-pointer">Policy Database</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Glossary'); }} className="hover:text-white transition-colors cursor-pointer">Digital Identity</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('AI Governance'); }} className="hover:text-white transition-colors cursor-pointer">AI Governance</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Cross-Border Data'); }} className="hover:text-white transition-colors cursor-pointer">Cross-Border Data</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-3">Connect</h3>
-              <ul className="space-y-2 text-sm mb-4">
-                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
+                <li><Link href="/articles" className="hover:text-white transition-colors">Articles</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
                 <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Newsletter'); }} className="hover:text-white transition-colors cursor-pointer">Newsletter</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Privacy Policy'); }} className="hover:text-white transition-colors cursor-pointer">Privacy Policy</a></li>
               </ul>
-              <div className="flex gap-3">
-                <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Social Media'); }} className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
-                  <Twitter className="w-4 h-4" />
-                </a>
-                <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Social Media'); }} className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
-                  <Linkedin className="w-4 h-4" />
-                </a>
-                <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('RSS Feed'); }} className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
-                  <Rss className="w-4 h-4" />
-                </a>
-              </div>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-white font-semibold mb-3">Get In Touch</h3>
+              <p className="text-sm text-gray-400 mb-3">
+                Questions, tips, or partnership inquiries:
+              </p>
+              <a
+                href="mailto:contact@cortexai.com"
+                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                contact@cortexai.com
+              </a>
             </div>
           </div>
-          
-          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-            <div>© 2025 iGRAIL. All rights reserved.</div>
-            <div className="flex gap-6">
-              <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Terms of Service'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Terms of Service</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Privacy Policy'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Privacy Policy</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Cookie Settings'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Cookie Settings</a>
-            </div>
+
+          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-gray-500">
+            <div>© 2026 iGRAIL. All rights reserved.</div>
+            <small style={{ opacity: 0.4 }}>Produced by the agentic team at Cortex AI</small>
           </div>
         </div>
       </footer>
 
-      {/* Coming Soon Modal */}
-      <ComingSoonModal isOpen={isOpen} onClose={closeModal} feature={feature} />
+      {/* Coming Soon Modal removed — no triggers remain on this page */}
     </div>
   );
 }
