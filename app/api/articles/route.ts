@@ -8,8 +8,9 @@ export const runtime = 'nodejs';
 // GET: Fetch published articles for public display
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const limit = parseInt(searchParams.get('limit') || '10');
+  const limit = parseInt(searchParams.get('limit') || '50');
   const featured = searchParams.get('featured') === 'true';
+  const category = searchParams.get('category');
 
   try {
     // Check if Supabase is configured
@@ -31,6 +32,11 @@ export async function GET(request: Request) {
     // Filter by featured if requested
     if (featured) {
       query = query.eq('is_featured', true);
+    }
+
+    // Filter by category if requested
+    if (category) {
+      query = query.ilike('category', category);
     }
 
     // Execute query
