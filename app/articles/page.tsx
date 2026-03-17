@@ -1,133 +1,188 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Clock, TrendingUp, Users } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import Image from 'next/image';
+import { Clock, User, ArrowRight, TrendingUp, Search } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { PageHero } from '@/components/PageHero';
+
+interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content: string;
+  published_at: string | null;
+  created_at: string;
+  read_time_minutes: number | null;
+  category: string | null;
+  is_featured: boolean;
+  author?: {
+    name?: string | null;
+  } | null;
+  featured_image_url: string | null;
+}
 
 export default function ArticlesPage() {
-  const upcomingFeatures = [
-    {
-      icon: BookOpen,
-      title: 'Expert Commentary',
-      description: 'In-depth analysis from leading policy experts and researchers worldwide'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Trending Topics',
-      description: 'Real-time coverage of emerging digital policy issues and debates'
-    },
-    {
-      icon: Users,
-      title: 'Community Insights',
-      description: 'Curated perspectives from practitioners, advocates, and stakeholders'
-    },
-    {
-      icon: Clock,
-      title: 'Daily Briefings',
-      description: 'Morning summaries of overnight policy developments around the globe'
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const response = await fetch('/api/articles?limit=50');
+        const data = await response.json();
+        setArticles(data.articles || []);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchArticles();
+  }, []);
+
+  const categories = React.useMemo(() => {
+    const cats = new Set<string>();
+    articles.forEach((a) => {
+      if (a.category) cats.add(a.category);
+    });
+    return ['All', ...Array.from(cats).sort()];
+  }, [articles]);
+
+  const filteredArticles = React.useMemo(() => {
+    if (activeCategory === 'All') return articles;
+    return articles.filter((a) => a.category === activeCategory);
+  }, [articles, activeCategory]);
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const getExcerpt = (article: Article) => {
+    if (article.summary) return article.summary;
+    if (!article.content) return 'No content available...';
+    const plainText = article.content.replace(/<[^>]*>/g, '');
+    return plainText.substring(0, 150) + '...';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] border-b border-blue-900/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2">Think Tank</h1>
-              <p className="text-blue-200">Global policy analysis and commentary</p>
-            </div>
-            <Link href="/" className="text-blue-200 hover:text-white font-medium transition-colors">
-              ← Back to Home
-            </Link>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        title="The Observatory"
+        subtitle="Deep dives, digests, and expert analysis on AI governance, data protection, and digital identity policy."
+      />
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-block px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
-            Coming Soon
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Category Tabs */}
+        {categories.length > 1 && (
+          <div className="flex gap-2 mb-8 border-b border-gray-200 overflow-x-auto">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
+                  activeCategory === cat
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Your Daily Source for Policy Intelligence
-          </h2>
-          <p className="text-lg text-gray-600 mb-8">
-            We&apos;re building a comprehensive platform for expert analysis, breaking news, and deep dives
-            into the policies shaping our digital future. Subscribe to be notified when we launch.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" icon={<ArrowRight className="w-5 h-5" />}>
-              Subscribe for Updates
-            </Button>
-            <Button variant="secondary" size="lg">
-              View Sample Articles
-            </Button>
+        )}
+
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-gray-600">Loading articles...</p>
           </div>
-        </div>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          {upcomingFeatures.map((feature, idx) => (
-            <Card key={idx} hover className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <feature.icon className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Preview Section */}
-        <div className="bg-white rounded-lg border border-gray-200 p-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">What to Expect</h3>
-            <div className="space-y-4 text-left">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-600 mt-2 flex-shrink-0"></div>
-                <p className="text-gray-700">
-                  <strong>Daily Analysis:</strong> Fresh perspectives on breaking policy news from our network of experts
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-600 mt-2 flex-shrink-0"></div>
-                <p className="text-gray-700">
-                  <strong>Long-Form Investigations:</strong> Deep research into complex policy challenges and their real-world impacts
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-600 mt-2 flex-shrink-0"></div>
-                <p className="text-gray-700">
-                  <strong>Guest Contributors:</strong> Voices from government, industry, civil society, and academia
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-blue-600 mt-2 flex-shrink-0"></div>
-                <p className="text-gray-700">
-                  <strong>Interactive Content:</strong> Polls, debates, and community discussions on critical issues
-                </p>
-              </div>
-            </div>
+        ) : filteredArticles.length === 0 ? (
+          <div className="text-center py-16">
+            <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              {activeCategory === 'All' ? 'No Articles Yet' : `No ${activeCategory} articles`}
+            </h2>
+            <p className="text-gray-600">
+              {activeCategory === 'All'
+                ? "We're working on bringing you insightful content. Check back soon!"
+                : 'Try selecting a different category above.'}
+            </p>
           </div>
-        </div>
-      </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredArticles.map((article) => (
+              <Link key={article.id} href={`/articles/${article.slug}`}>
+                <Card hover className="h-full flex flex-col overflow-hidden">
+                  {article.featured_image_url ? (
+                    <div className="relative w-full h-48 overflow-hidden">
+                      <Image
+                        src={article.featured_image_url}
+                        alt={article.title}
+                        fill
+                        unoptimized
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-48 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] flex items-center justify-center">
+                      <TrendingUp className="w-16 h-16 text-blue-100 opacity-50" />
+                    </div>
+                  )}
 
-      {/* Footer */}
-      <div className="bg-white border-t border-gray-200 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <p className="text-center text-gray-600">
-            iGRAIL Think Tank - Coming Soon
-          </p>
-        </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3 flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <User className="w-4 h-4" />
+                        <span>{article.author?.name || 'iGRAIL Editorial'}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span>{formatDate(article.published_at)}</span>
+                      </div>
+                      {article.category && (
+                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                          {article.category}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2 hover:text-blue-600 transition-colors">
+                      {article.title}
+                    </h3>
+
+                    <p className="text-gray-600 mb-4 line-clamp-3 flex-1">
+                      {getExcerpt(article)}
+                    </p>
+
+                    <div className="flex items-center gap-2 text-blue-600 font-medium hover:gap-3 transition-all">
+                      <span>Read More</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {filteredArticles.length > 0 && (
+          <div className="mt-12 text-center">
+            <p className="text-gray-600">
+              Showing {filteredArticles.length} article{filteredArticles.length !== 1 ? 's' : ''}
+              {activeCategory !== 'All' ? ` in ${activeCategory}` : ''}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

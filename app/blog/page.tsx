@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, User, ArrowRight, TrendingUp } from 'lucide-react';
+import { Clock, User, ArrowRight, TrendingUp, Search } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { PageHero } from '@/components/PageHero';
 
 interface Article {
@@ -16,6 +15,8 @@ interface Article {
   content: string;
   published_at: string | null;
   created_at: string;
+  read_time_minutes: number | null;
+  category: string | null;
   author?: {
     name?: string | null;
   } | null;
@@ -29,22 +30,9 @@ export default function BlogPage() {
   useEffect(() => {
     async function fetchPublishedArticles() {
       try {
-        // This is a public-facing page, so it must read from the public API.
-        // Using the admin endpoint would work only for signed-in editors and
-        // would fail for normal visitors after the auth hardening we added.
-        const response = await fetch('/api/articles?limit=3');
+        const response = await fetch('/api/articles?limit=50');
         const data = await response.json();
-
-        // The public API is already ordered by publish date, but keeping this
-        // sort here makes the page resilient if the API implementation changes.
-        const recentArticles = (data.articles || [])
-          .sort((a: Article, b: Article) => {
-            const dateA = new Date(a.published_at || a.created_at).getTime();
-            const dateB = new Date(b.published_at || b.created_at).getTime();
-            return dateB - dateA; // Most recent first
-          })
-          .slice(0, 3);
-        setArticles(recentArticles);
+        setArticles(data.articles || []);
       } catch (error) {
         console.error('Error fetching articles:', error);
       } finally {
@@ -87,14 +75,11 @@ export default function BlogPage() {
           </div>
         ) : articles.length === 0 ? (
           <div className="text-center py-16">
-            <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No Articles Yet</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600">
               We&apos;re working on bringing you insightful content. Check back soon!
             </p>
-            <Button variant="primary" size="lg">
-              Subscribe for Updates
-            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -122,7 +107,7 @@ export default function BlogPage() {
                   {/* Content */}
                   <div className="p-6 flex-1 flex flex-col">
                     {/* Metadata */}
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3 flex-wrap">
                       <div className="flex items-center gap-1">
                         <User className="w-4 h-4" />
                         <span>{article.author?.name || 'iGRAIL Editorial'}</span>
@@ -131,6 +116,11 @@ export default function BlogPage() {
                         <Clock className="w-4 h-4" />
                         <span>{formatDate(article.published_at)}</span>
                       </div>
+                      {article.category && (
+                        <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                          {article.category}
+                        </span>
+                      )}
                     </div>
 
                     {/* Title */}
@@ -169,11 +159,14 @@ export default function BlogPage() {
         <div className="max-w-7xl mx-auto px-6 py-12 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Stay Informed</h2>
           <p className="text-xl text-blue-100 mb-8">
-            Subscribe to get the latest policy insights delivered to your inbox
+            Weekly insights on global AI governance — direct from The Observatory.
           </p>
-          <Button variant="primary" size="lg" icon={<ArrowRight className="w-5 h-5" />}>
-            Subscribe Now
-          </Button>
+          <a
+            href="mailto:editorial@igrail.com"
+            className="inline-block px-8 py-3 bg-white text-[#1e3a5f] font-semibold rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            editorial@igrail.com
+          </a>
         </div>
       </div>
     </div>
