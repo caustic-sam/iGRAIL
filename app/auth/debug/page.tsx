@@ -1,9 +1,13 @@
+// IG-25: Gate this page in production — it exposes session tokens, cookies,
+// and user profile data. notFound() renders 404 and leaks nothing.
+import { notFound } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AuthDebugPage() {
+  if (process.env.NODE_ENV === 'production') notFound();
   const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
 

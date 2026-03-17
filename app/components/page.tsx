@@ -1,5 +1,9 @@
+// IG-25: Dev-only component gallery — 404 in production.
+// notFound() throws a special Next.js error caught by the App Router's
+// not-found boundary on both server and client renders.
 'use client';
 
+import { notFound } from 'next/navigation';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -16,6 +20,8 @@ const AnimatedGlobe = dynamic(
 );
 
 export default function ComponentGallery() {
+  if (process.env.NODE_ENV === 'production') notFound();
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}

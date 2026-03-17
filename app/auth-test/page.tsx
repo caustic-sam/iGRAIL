@@ -1,7 +1,11 @@
-// app/auth-test/page.tsx — server component to unblock build
+// app/auth-test/page.tsx — dev-only auth test page
+// IG-25: Returns 404 in production so the route is invisible to public users.
+import { notFound } from 'next/navigation';
+
 export const dynamic = 'force-dynamic';
 
 export default function AuthTestPage() {
+  if (process.env.NODE_ENV === 'production') notFound();
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Auth Status Test</h1>
