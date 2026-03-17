@@ -8,8 +8,6 @@ import { Globe, Menu, X, Settings, User, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/contexts/AuthContext';
-import { ComingSoonModal } from '@/components/ui/ComingSoonModal';
-import { useComingSoon } from '@/hooks/useComingSoon';
 
 const navItems = [
   { id: 'home', label: 'Policy Updates', href: '/policy-updates' },
@@ -29,7 +27,6 @@ export function Header() {
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
   const pathname = usePathname();
   const { user, loading, signOut } = useAuth();
-  const { isOpen, feature, showComingSoon, closeModal } = useComingSoon();
   // This derived value keeps the JSX simpler: either we have a usable avatar URL,
   // or we intentionally render the fallback icon.
   const avatarUrl = user?.avatar_url && !avatarLoadFailed ? user.avatar_url : null;
@@ -139,7 +136,7 @@ export function Header() {
                     Sign In
                   </Button>
                 </Link>
-                <Button variant="coming-soon" size="sm" onClick={() => showComingSoon('Newsletter Subscription')}>
+                <Button variant="coming-soon" size="sm" disabled>
                   Subscribe
                 </Button>
               </>
@@ -187,7 +184,7 @@ export function Header() {
               <span>Studio</span>
             </Link>
             <div className="pt-2">
-              <Button variant="coming-soon" size="sm" className="w-full" onClick={() => showComingSoon('Newsletter Subscription')}>
+              <Button variant="coming-soon" size="sm" className="w-full" disabled>
                 Subscribe
               </Button>
             </div>
@@ -195,8 +192,6 @@ export function Header() {
         </div>
       )}
 
-      {/* Coming Soon Modal */}
-      <ComingSoonModal isOpen={isOpen} onClose={closeModal} feature={feature} />
     </header>
   );
 }
