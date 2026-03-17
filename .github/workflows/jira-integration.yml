@@ -30,7 +30,7 @@ jobs:
           issue: ${{ steps.jira.outputs.issue }}
           transition: ${{ github.event.action == 'closed' && github.event.pull_request.merged == true && 'Done' || github.event.action == 'ready_for_review' && 'In Review' || 'In Progress' }}
         env:
-          JIRA_BASE_URL: https://cortexaillc.atlassian.net
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
 
@@ -40,7 +40,7 @@ jobs:
           curl -X POST \
             -u "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
             -H "Content-Type: application/json" \
-            "https://cortexaillc.atlassian.net/rest/api/3/issue/${{ steps.jira.outputs.issue }}/comment" \
+            "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/${{ steps.jira.outputs.issue }}/comment" \
             -d "{
               \"body\": {
                 \"type\": \"doc\",
@@ -64,7 +64,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🔗 Linked to Jira: [${{ steps.jira.outputs.issue }}](https://cortexaillc.atlassian.net/browse/${{ steps.jira.outputs.issue }})'
+              body: '🔗 Linked to Jira: [${{ steps.jira.outputs.issue }}](${{ secrets.JIRA_BASE_URL }}/browse/${{ steps.jira.outputs.issue }})'
             })
 
   link-commits:
@@ -91,7 +91,7 @@ jobs:
               curl -X POST \
                 -u "${{ secrets.JIRA_USER_EMAIL }}:${{ secrets.JIRA_API_TOKEN }}" \
                 -H "Content-Type: application/json" \
-                "https://cortexaillc.atlassian.net/rest/api/3/issue/$ISSUE/comment" \
+                "${{ secrets.JIRA_BASE_URL }}/rest/api/3/issue/$ISSUE/comment" \
                 -d "{
                   \"body\": {
                     \"type\": \"doc\",

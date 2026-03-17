@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "description": "Policy intelligence for AI, identity, interoperability, and digital governance",
-  "author": "Wren / CortexAI",
+  "author": "iGRAIL",
   "license": "MIT",
   "packageManager": "pnpm@9.12.0",
   "engines": {
@@ -28,7 +28,6 @@
     "seed": "tsx scripts/seed.ts",
     "search:index": "tsx scripts/build-search-index.ts",
     "audit": "tsx scripts/audit-site.ts",
-    "audit:web3": "tsx scripts/audit-web3-readiness.ts",
     "clean": "rm -rf .next out node_modules/.cache",
     "prepare": "husky install"
   },

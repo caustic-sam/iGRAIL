@@ -45,7 +45,7 @@ jobs:
         if: success()
         run: |
           echo "Documentation successfully synced to Confluence"
-          echo "View at: https://cortexaillc.atlassian.net/wiki/spaces/G"
+          echo "View at: ${{ secrets.CONFLUENCE_BASE_URL }}/wiki/spaces/G"
 
       - name: Notify on failure
         if: failure()

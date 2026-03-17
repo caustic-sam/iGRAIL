@@ -44,18 +44,12 @@ export const DEFAULT_FLAGS: FeatureFlags = {
 };
 
 const STORAGE_KEY = 'igrail_feature_flags';
-const LEGACY_STORAGE_KEY = 'gailp_feature_flags';
 
 export function getFeatureFlags(): FeatureFlags {
   if (typeof window === 'undefined') return DEFAULT_FLAGS;
 
   try {
-    // We prefer the new iGRAIL key, but we still read the legacy key so existing
-    // browser settings survive the rename without any manual migration step.
-    const stored =
-      localStorage.getItem(STORAGE_KEY) ??
-      localStorage.getItem(LEGACY_STORAGE_KEY);
-
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       return { ...DEFAULT_FLAGS, ...JSON.parse(stored) };
     }
@@ -73,7 +67,6 @@ export function setFeatureFlags(flags: Partial<FeatureFlags>): void {
     const current = getFeatureFlags();
     const updated = { ...current, ...flags };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch (error) {
     console.error('Error saving feature flags:', error);
   }
@@ -84,7 +77,6 @@ export function resetFeatureFlags(): void {
 
   try {
     localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch (error) {
     console.error('Error resetting feature flags:', error);
   }

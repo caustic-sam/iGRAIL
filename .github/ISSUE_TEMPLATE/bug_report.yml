@@ -117,5 +117,5 @@ body:
           required: true
         - label: I have included all necessary information above
           required: true
-        - label: This is not a security vulnerability (use security@cortexai.com)
+        - label: This is not a security vulnerability (use editorial@igrail.com)
           required: true

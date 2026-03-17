@@ -422,10 +422,10 @@ export default function HomePage() {
             Weekly insights, analysis, and updates on global AI governance — direct from The Observatory.
           </p>
           <a
-            href="mailto:contact@cortexai.com"
+            href="mailto:editorial@igrail.com"
             className="inline-block px-8 py-3 bg-white text-[#1e3a5f] font-semibold rounded-lg hover:bg-blue-50 transition-colors"
           >
-            contact@cortexai.com
+            editorial@igrail.com
           </a>
         </div>
       </section>
@@ -437,7 +437,7 @@ export default function HomePage() {
            Removed: Live Hub, Resources Library, Policy Database, Digital Identity,
            AI Governance, Cross-Border Data, Newsletter, Privacy Policy, Cookie Settings,
            Terms of Service (all Coming Soon), and social icons (no accounts yet).
-           Updated © to 2026. Added Cortex AI production credit. */}
+           Updated © to 2026. */}
       <footer className="bg-[#1a2332] text-gray-300 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
@@ -473,17 +473,17 @@ export default function HomePage() {
                 Questions, tips, or partnership inquiries:
               </p>
               <a
-                href="mailto:contact@cortexai.com"
+                href="mailto:editorial@igrail.com"
                 className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
               >
-                contact@cortexai.com
+                editorial@igrail.com
               </a>
             </div>
           </div>
 
           <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-gray-500">
             <div>© 2026 iGRAIL. All rights reserved.</div>
-            <small style={{ opacity: 0.4 }}>Produced by the agentic team at Cortex AI</small>
+            {/* production credit removed — iGRAIL is the brand */}
           </div>
         </div>
       </footer>
