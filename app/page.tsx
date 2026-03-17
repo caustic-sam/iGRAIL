@@ -7,14 +7,13 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import {
   Globe, Mail, Twitter, Linkedin, Rss, ArrowRight,
-  MessageCircle, Clock, Heart, Play, Send,
-  ThumbsUp, FileStack, BarChart3, Network, RefreshCw
+  MessageCircle, Clock, Play, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { StatusDot } from '@/components/ui/StatusDot';
-import { mockPolicies, mockArticles, mockThoughts, mockVideos, quickStats } from '@/lib/mockData';
+import { mockPolicies, mockArticles, mockVideos, quickStats } from '@/lib/mockData';
 import { TermOfDay } from '@/components/widgets/TermOfDay';
 import { NISTAssistant } from '@/components/widgets/NISTAssistant';
 import { DataBoxes } from '@/components/widgets/DataBoxes';
@@ -117,30 +116,6 @@ export default function HomePage() {
     router.refresh();
   };
 
-  const resourceCards = [
-    {
-      icon: FileStack,
-      title: "Policy Templates",
-      subtitle: "Policy Templates",
-      description: "Ready-to-use frameworks for digital governance, privacy impact assessments, and compliance audits.",
-      link: "Explore Templates"
-    },
-    {
-      icon: BarChart3,
-      title: "Research Reports",
-      subtitle: "Research Reports",
-      description: "In-depth analysis of global policy trends, comparative studies, and impact assessments.",
-      link: "Access Reports"
-    },
-    {
-      icon: Network,
-      title: "Expert Network",
-      subtitle: "Expert Network",
-      description: "Connect with policy experts, legal professionals, and government officials worldwide.",
-      link: "Join Network"
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50 relative">
       {/* Hero Banner */}
@@ -167,9 +142,10 @@ export default function HomePage() {
                 <Link href="/blog">
                   <Button size="lg" variant="accent">Explore Insights</Button>
                 </Link>
-                <Button size="lg" variant="coming-soon" onClick={() => showComingSoon('Community Features')}>
-                  Join Community
-                </Button>
+                {/* IG-23: Replaced fake "Join Community" CTA with a real link to our published articles */}
+                <Link href="/articles">
+                  <Button size="lg" variant="accent">Read The Observatory</Button>
+                </Link>
                 <button
                   onClick={handleRefreshAll}
                   aria-label="Refresh all live feeds"
@@ -296,51 +272,6 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Community Chat Preview */}
-            <Card className="p-5 mt-8">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Community Chat</h3>
-                  <p className="text-xs text-gray-600">23 online</p>
-                </div>
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="text-xs">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Avatar size="sm">PE</Avatar>
-                    <span className="font-semibold text-gray-900">PolicyExpert_EU</span>
-                    <span className="text-gray-500">3m</span>
-                  </div>
-                  <p className="text-gray-700 ml-8">Has anyone analyzed the impact of the new UK data transparency directive?</p>
-                </div>
-
-                <div className="text-xs">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Avatar size="sm">DA</Avatar>
-                    <span className="font-semibold text-gray-900">DataPolicy_Analyst</span>
-                    <span className="text-gray-500">1m</span>
-                  </div>
-                  <p className="text-gray-700 ml-8">Working on a comprehensive analysis. Should be published next week!</p>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Join the discussion..."
-                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={() => showComingSoon('Community Chat')}
-                  aria-label="Send chat message (coming soon)"
-                  className="w-10 h-10 rounded-lg bg-orange-500 border-2 border-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </Card>
           </div>
 
           {/* Center Column - Expert Analysis */}
@@ -516,54 +447,6 @@ export default function HomePage() {
           {/* Right Column - Policy Pulse, Videos, Community */}
           <div className="md:col-span-2 lg:col-span-3 space-y-6">
             
-            {/* Policy Pulse */}
-            <Card className="p-5">
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Policy Pulse</h3>
-              <p className="text-sm text-gray-600 mb-4">Quick insights and observations</p>
-              
-              <div className="space-y-4">
-                {mockThoughts.map(thought => (
-                  <div key={thought.id} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                    <div className="flex items-start gap-2 mb-2">
-                      <Avatar size="sm">{thought.author.avatar}</Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-gray-900">{thought.author.name}</span>
-                          <span className="text-xs text-gray-500">{thought.time}</span>
-                        </div>
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {thought.content}
-                        </p>
-                        <div className="flex items-center gap-3 mt-2">
-                          <button
-                            onClick={() => showComingSoon('Social Features')}
-                            className="text-xs text-orange-600 hover:text-orange-700 flex items-center gap-1 border border-orange-500 px-2 py-0.5 rounded"
-                          >
-                            <ThumbsUp className="w-3 h-3" />
-                            Like
-                          </button>
-                          <button
-                            onClick={() => showComingSoon('Social Features')}
-                            className="text-xs text-orange-600 hover:text-orange-700 flex items-center gap-1 border border-orange-500 px-2 py-0.5 rounded"
-                          >
-                            <MessageCircle className="w-3 h-3" />
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => showComingSoon('Policy Pulse Contributions')}
-                className="w-full mt-4 text-center text-orange-600 font-medium text-sm py-2 hover:bg-orange-50 rounded-lg transition-colors border-2 border-orange-500"
-              >
-                Share a quick policy insight...
-              </button>
-            </Card>
-
             {/* Live FreshRSS Feed */}
             <FeedCard
               title="Live Policy Feed"
@@ -579,53 +462,25 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Newsletter Section */}
+      {/* Stay Informed Section — IG-23: removed fake subscriber count and unbuilt email form */}
       <section className="bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] text-white py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Mail className="w-12 h-12 mx-auto mb-4 text-blue-200" />
-          <h2 className="text-3xl font-bold mb-3">Get weekly insights, analysis, and updates delivered to your inbox</h2>
-          <p className="text-blue-100 mb-8">Join 15,000+ policy professionals worldwide</p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-5 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <Button variant="coming-soon" size="lg" onClick={() => showComingSoon('Newsletter Subscription')}>
-              Subscribe
-            </Button>
-          </div>
+          <h2 className="text-3xl font-bold mb-3">Stay Informed</h2>
+          <p className="text-blue-100 mb-6">
+            Weekly insights, analysis, and updates on global AI governance — direct from The Observatory.
+          </p>
+          <a
+            href="mailto:contact@cortexai.com"
+            className="inline-block px-8 py-3 bg-white text-[#1e3a5f] font-semibold rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            contact@cortexai.com
+          </a>
         </div>
       </section>
 
-      {/* Resource Library */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Policy Resource Library</h2>
-            <p className="text-gray-600">Comprehensive collection of frameworks, templates, and research tools for policy professionals</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {resourceCards.map((resource, idx) => (
-              <Card key={idx} className="p-8 text-center hover:shadow-lg transition-shadow">
-                <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                  <resource.icon className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{resource.title}</h3>
-                <h4 className="text-sm font-semibold text-blue-600 mb-3">{resource.subtitle}</h4>
-                <p className="text-sm text-gray-600 mb-6">{resource.description}</p>
-                <button
-                  onClick={() => showComingSoon(resource.title)}
-                  className="text-orange-600 font-medium text-sm hover:text-orange-700 inline-flex items-center gap-2 border-2 border-orange-500 px-4 py-2 rounded-lg"
-                >
-                  {resource.link} <ArrowRight className="w-4 h-4" />
-                </button>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Resource Library removed — IG-24: all three cards (Policy Templates, Research Reports, Expert Network)
+           triggered Coming Soon modals and had no real content behind them */}
 
       {/* Footer */}
       <footer className="bg-[#1a2332] text-gray-300 border-t border-gray-800">
