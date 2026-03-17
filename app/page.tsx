@@ -13,7 +13,10 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { StatusDot } from '@/components/ui/StatusDot';
-import { mockPolicies, mockArticles, mockVideos, quickStats } from '@/lib/mockData';
+// IG-33: mockArticles, mockVideos, quickStats removed — sections now show nothing
+// rather than fake data when Supabase hasn't been seeded yet. mockPolicies kept
+// for the Policy Intelligence Feed (links to real external policy documents).
+import { mockPolicies } from '@/lib/mockData';
 import { TermOfDay } from '@/components/widgets/TermOfDay';
 import { NISTAssistant } from '@/components/widgets/NISTAssistant';
 import { DataBoxes } from '@/components/widgets/DataBoxes';
@@ -35,8 +38,6 @@ export default function HomePage() {
   const [loadingArticle, setLoadingArticle] = React.useState(true);
   const [videos, setVideos] = React.useState<any[]>([]);
   const [loadingVideos, setLoadingVideos] = React.useState(true);
-  const [stats, setStats] = React.useState<any[]>(quickStats);
-  const [loadingStats, setLoadingStats] = React.useState(true);
 
   const filteredPolicies = React.useMemo(() => {
     return mockPolicies.filter(p => (activeTab === 'All Updates' ? true : p.category === activeTab));
@@ -50,14 +51,11 @@ export default function HomePage() {
         const data = await res.json();
         if (data.articles && data.articles.length > 0) {
           setFeaturedArticle(data.articles[0]);
-        } else {
-          // Fallback to mock data if no featured articles
-          setFeaturedArticle(mockArticles[0]);
         }
+        // IG-33: no mock fallback — section stays empty until real articles are seeded
       } catch (error) {
         console.error('Error fetching featured article:', error);
-        // Fallback to mock data on error
-        setFeaturedArticle(mockArticles[0]);
+        // IG-33: leave null — better to show nothing than fake content
       } finally {
         setLoadingArticle(false);
       }
@@ -73,14 +71,11 @@ export default function HomePage() {
         const data = await res.json();
         if (data.videos && data.videos.length > 0) {
           setVideos(data.videos);
-        } else {
-          // Fallback to mock videos
-          setVideos(mockVideos);
         }
+        // IG-33: no mock fallback — Video Insights hidden when no real videos
       } catch (error) {
         console.error('Error fetching videos:', error);
-        // Fallback to mock data on error
-        setVideos(mockVideos);
+        // IG-33: leave empty array — section hidden below when videos.length === 0
       } finally {
         setLoadingVideos(false);
       }
@@ -88,28 +83,8 @@ export default function HomePage() {
     fetchVideos();
   }, []);
 
-  // Fetch stats
-  React.useEffect(() => {
-    async function fetchStats() {
-      try {
-        const res = await fetch('/api/stats');
-        const data = await res.json();
-        if (data.stats && data.stats.length > 0) {
-          setStats(data.stats);
-        } else {
-          // Fallback to mock stats
-          setStats(quickStats);
-        }
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-        // Fallback to mock data on error
-        setStats(quickStats);
-      } finally {
-        setLoadingStats(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  // IG-33: fetchStats removed — quickStats had fabricated numbers (247 policy updates,
+  // 89 countries, 156 experts). Quick Insights section removed from render below.
 
   const handleRefreshAll = () => {
     router.refresh();
@@ -243,33 +218,9 @@ export default function HomePage() {
               </button>
             </Link>
 
-            {/* Quick Insights */}
-            <div className="mt-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Insights</h3>
-              <div className="space-y-3">
-                {loadingStats ? (
-                  // Loading skeleton
-                  Array.from({ length: 4 }).map((_, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100 animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-32"></div>
-                      <div className="h-6 bg-gray-200 rounded w-16"></div>
-                    </div>
-                  ))
-                ) : (
-                  stats.map((stat, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-600">{stat.label}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-gray-900">{stat.value}</span>
-                        {stat.trend !== 'active' && (
-                          <span className="text-xs text-green-600 font-medium">{stat.trend}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            {/* Quick Insights removed — IG-33: was showing fabricated stats
+                 (247 policy updates, 89 countries, 156 experts). Hidden until
+                 real data is queryable from Supabase. */}
 
           </div>
 
@@ -372,8 +323,9 @@ export default function HomePage() {
               <GlobalFeedStream />
             </div>
 
-            {/* Video Insights */}
-            <Card className="p-5 mt-6">
+            {/* Video Insights — IG-33: only renders while loading or when real videos exist.
+                 No mock fallback — section disappears once API returns empty. */}
+            {(loadingVideos || videos.length > 0) && (<Card className="p-5 mt-6">
               <h3 className="text-lg font-bold text-gray-900 mb-1">Video Insights</h3>
               <p className="text-sm text-gray-600 mb-4">Expert video commentary</p>
 
@@ -435,7 +387,7 @@ export default function HomePage() {
                   ))}
                 </div>
               )}
-            </Card>
+            </Card>)}
 
             {/* NIST Assistant */}
             <div className="mt-6">
