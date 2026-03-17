@@ -12,41 +12,40 @@ export async function GET(request: Request) {
   const featured = searchParams.get('featured') === 'true';
   const category = searchParams.get('category');
 
-  try {
-    // Check if Supabase is configured
-    if (!isSupabaseConfigured()) {
-      return NextResponse.json({
-        articles: mockArticles.slice(0, limit),
-        source: 'mock',
-        count: mockArticles.length,
-      });
-    }
+  // Check if Supabase is configured
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json({
+      articles: mockArticles.slice(0, limit),
+      source: 'mock',
+      count: mockArticles.length,
+    });
+  }
 
-    // Build query for published articles
+  // Try with author join first, fall back to plain query if the join fails
+  for (const selectClause of [
+    'id, title, slug, summary, content, published_at, created_at, read_time_minutes, word_count, featured_image_url, featured_image_alt, is_featured, category, author:authors!articles_author_id_fkey(name, avatar_url)',
+    'id, title, slug, summary, content, published_at, created_at, read_time_minutes, word_count, featured_image_url, featured_image_alt, is_featured, category',
+  ]) {
     let query = supabase
       .from('articles')
-      .select('id, title, slug, summary, content, published_at, created_at, read_time_minutes, word_count, featured_image_url, featured_image_alt, is_featured, category, author:authors!articles_author_id_fkey(name, avatar_url)')
+      .select(selectClause)
       .eq('status', 'published')
       .not('published_at', 'is', null);
 
-    // Filter by featured if requested
     if (featured) {
       query = query.eq('is_featured', true);
     }
-
-    // Filter by category if requested
     if (category) {
       query = query.ilike('category', category);
     }
 
-    // Execute query
     const { data, error } = await query
       .order('published_at', { ascending: false })
       .limit(limit);
 
     if (error) {
-      console.error('Supabase error while fetching published articles:', error);
-      throw error;
+      console.error('Supabase articles query failed:', JSON.stringify(error));
+      continue; // try next select clause
     }
 
     return NextResponse.json({
@@ -54,15 +53,13 @@ export async function GET(request: Request) {
       source: 'supabase',
       count: data?.length || 0,
     });
-  } catch (error) {
-    console.error('Unexpected error while fetching published articles:', error);
-
-    // Fallback to mock data
-    return NextResponse.json({
-      articles: mockArticles.slice(0, limit),
-      source: 'mock',
-      count: mockArticles.length,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
   }
+
+  // Both queries failed — fall back to mock
+  console.error('All Supabase article queries failed, returning mock data');
+  return NextResponse.json({
+    articles: mockArticles.slice(0, limit),
+    source: 'mock',
+    count: mockArticles.length,
+  });
 }
