@@ -17,9 +17,13 @@ export async function GET(request: Request) {
     return NextResponse.json({
       articles: mockArticles.slice(0, limit),
       source: 'mock',
+      reason: 'supabase_not_configured',
       count: mockArticles.length,
     });
   }
+
+  // Collect diagnostic info for debugging (temporary)
+  const errors: string[] = [];
 
   // Try with author join first, fall back to plain query if the join fails
   for (const selectClause of [
@@ -44,7 +48,9 @@ export async function GET(request: Request) {
       .limit(limit);
 
     if (error) {
-      console.error('Supabase articles query failed:', JSON.stringify(error));
+      const errStr = JSON.stringify(error);
+      console.error('Supabase articles query failed:', errStr);
+      errors.push(errStr);
       continue; // try next select clause
     }
 
@@ -55,11 +61,14 @@ export async function GET(request: Request) {
     });
   }
 
-  // Both queries failed — fall back to mock
+  // Both queries failed — fall back to mock with diagnostic info
   console.error('All Supabase article queries failed, returning mock data');
   return NextResponse.json({
     articles: mockArticles.slice(0, limit),
     source: 'mock',
+    reason: 'all_queries_failed',
+    errors,
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/^(https?:\/\/[^.]+).*/, '$1...'),
     count: mockArticles.length,
   });
 }
