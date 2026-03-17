@@ -1,6 +1,11 @@
 import Link from 'next/link';
 
 // Top navigation bar (rendered from app/layout.tsx)
+//
+// IG-28: Nav trimmed to only routes that have real content at soft launch.
+// Deferred routes (/policy-pulse, /videos, /deck, /wren, /policies,
+// /quick-posts, /glossary) are kept as files but removed from visible nav
+// so users never land on empty pages.
 export default function Navigation() {
   return (
     <header className="fixed top-0 inset-x-0 z-50 h-16 border-b bg-background/80 backdrop-blur">
@@ -10,11 +15,13 @@ export default function Navigation() {
             iGRAIL
           </Link>
           <nav className="hidden md:flex items-center gap-4 text-sm">
-            <Link href="/policy-pulse" className="hover:underline">Policy Pulse</Link>
+            {/* Live routes only — deferred routes intentionally omitted (IG-28) */}
             <Link href="/articles" className="hover:underline">Articles</Link>
             <Link href="/about" className="hover:underline">About</Link>
+            <Link href="/contact" className="hover:underline">Contact</Link>
           </nav>
         </div>
+        {/* Admin link kept but not advertised — internal use only */}
         <div className="flex items-center gap-2">
           <Link
             href="/admin"

@@ -6,23 +6,25 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import {
-  Globe, Mail, Twitter, Linkedin, Rss, ArrowRight,
-  MessageCircle, Clock, Heart, Play, Send,
-  ThumbsUp, FileStack, BarChart3, Network, RefreshCw
+  Globe, Mail, Rss, ArrowRight,
+  MessageCircle, Clock, Play, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { StatusDot } from '@/components/ui/StatusDot';
-import { mockPolicies, mockArticles, mockThoughts, mockVideos, quickStats } from '@/lib/mockData';
+// IG-33: mockArticles, mockVideos, quickStats removed — sections now show nothing
+// rather than fake data when Supabase hasn't been seeded yet. mockPolicies kept
+// for the Policy Intelligence Feed (links to real external policy documents).
+import { mockPolicies } from '@/lib/mockData';
 import { TermOfDay } from '@/components/widgets/TermOfDay';
 import { NISTAssistant } from '@/components/widgets/NISTAssistant';
 import { DataBoxes } from '@/components/widgets/DataBoxes';
 import { FeedCard } from '@/components/FeedCard';
 import { GlobalFeedStream } from '@/components/GlobalFeedStream';
 
-import { ComingSoonModal } from '@/components/ui/ComingSoonModal';
-import { useComingSoon } from '@/hooks/useComingSoon';
+// ComingSoonModal and useComingSoon removed — IG-21/22/23/24/26 eliminated
+// all Coming Soon triggers from the homepage. Nothing calls showComingSoon() anymore.
 
 const AnimatedGlobe = dynamic(
   () => import('@/components/AnimatedGlobe').then((m) => ({ default: m.AnimatedGlobe })),
@@ -30,15 +32,12 @@ const AnimatedGlobe = dynamic(
 );
 
 export default function HomePage() {
-  const { isOpen, feature, showComingSoon, closeModal } = useComingSoon();
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<'All Updates' | 'Data' | 'Digital ID'>('All Updates');
   const [featuredArticle, setFeaturedArticle] = React.useState<any>(null);
   const [loadingArticle, setLoadingArticle] = React.useState(true);
   const [videos, setVideos] = React.useState<any[]>([]);
   const [loadingVideos, setLoadingVideos] = React.useState(true);
-  const [stats, setStats] = React.useState<any[]>(quickStats);
-  const [loadingStats, setLoadingStats] = React.useState(true);
 
   const filteredPolicies = React.useMemo(() => {
     return mockPolicies.filter(p => (activeTab === 'All Updates' ? true : p.category === activeTab));
@@ -52,14 +51,11 @@ export default function HomePage() {
         const data = await res.json();
         if (data.articles && data.articles.length > 0) {
           setFeaturedArticle(data.articles[0]);
-        } else {
-          // Fallback to mock data if no featured articles
-          setFeaturedArticle(mockArticles[0]);
         }
+        // IG-33: no mock fallback — section stays empty until real articles are seeded
       } catch (error) {
         console.error('Error fetching featured article:', error);
-        // Fallback to mock data on error
-        setFeaturedArticle(mockArticles[0]);
+        // IG-33: leave null — better to show nothing than fake content
       } finally {
         setLoadingArticle(false);
       }
@@ -75,14 +71,11 @@ export default function HomePage() {
         const data = await res.json();
         if (data.videos && data.videos.length > 0) {
           setVideos(data.videos);
-        } else {
-          // Fallback to mock videos
-          setVideos(mockVideos);
         }
+        // IG-33: no mock fallback — Video Insights hidden when no real videos
       } catch (error) {
         console.error('Error fetching videos:', error);
-        // Fallback to mock data on error
-        setVideos(mockVideos);
+        // IG-33: leave empty array — section hidden below when videos.length === 0
       } finally {
         setLoadingVideos(false);
       }
@@ -90,56 +83,12 @@ export default function HomePage() {
     fetchVideos();
   }, []);
 
-  // Fetch stats
-  React.useEffect(() => {
-    async function fetchStats() {
-      try {
-        const res = await fetch('/api/stats');
-        const data = await res.json();
-        if (data.stats && data.stats.length > 0) {
-          setStats(data.stats);
-        } else {
-          // Fallback to mock stats
-          setStats(quickStats);
-        }
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-        // Fallback to mock data on error
-        setStats(quickStats);
-      } finally {
-        setLoadingStats(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  // IG-33: fetchStats removed — quickStats had fabricated numbers (247 policy updates,
+  // 89 countries, 156 experts). Quick Insights section removed from render below.
 
   const handleRefreshAll = () => {
     router.refresh();
   };
-
-  const resourceCards = [
-    {
-      icon: FileStack,
-      title: "Policy Templates",
-      subtitle: "Policy Templates",
-      description: "Ready-to-use frameworks for digital governance, privacy impact assessments, and compliance audits.",
-      link: "Explore Templates"
-    },
-    {
-      icon: BarChart3,
-      title: "Research Reports",
-      subtitle: "Research Reports",
-      description: "In-depth analysis of global policy trends, comparative studies, and impact assessments.",
-      link: "Access Reports"
-    },
-    {
-      icon: Network,
-      title: "Expert Network",
-      subtitle: "Expert Network",
-      description: "Connect with policy experts, legal professionals, and government officials worldwide.",
-      link: "Join Network"
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -167,9 +116,10 @@ export default function HomePage() {
                 <Link href="/blog">
                   <Button size="lg" variant="accent">Explore Insights</Button>
                 </Link>
-                <Button size="lg" variant="coming-soon" onClick={() => showComingSoon('Community Features')}>
-                  Join Community
-                </Button>
+                {/* IG-23: Replaced fake "Join Community" CTA with a real link to our published articles */}
+                <Link href="/articles">
+                  <Button size="lg" variant="accent">Read The Observatory</Button>
+                </Link>
                 <button
                   onClick={handleRefreshAll}
                   aria-label="Refresh all live feeds"
@@ -268,79 +218,10 @@ export default function HomePage() {
               </button>
             </Link>
 
-            {/* Quick Insights */}
-            <div className="mt-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Insights</h3>
-              <div className="space-y-3">
-                {loadingStats ? (
-                  // Loading skeleton
-                  Array.from({ length: 4 }).map((_, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100 animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-32"></div>
-                      <div className="h-6 bg-gray-200 rounded w-16"></div>
-                    </div>
-                  ))
-                ) : (
-                  stats.map((stat, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-600">{stat.label}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-gray-900">{stat.value}</span>
-                        {stat.trend !== 'active' && (
-                          <span className="text-xs text-green-600 font-medium">{stat.trend}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            {/* Quick Insights removed — IG-33: was showing fabricated stats
+                 (247 policy updates, 89 countries, 156 experts). Hidden until
+                 real data is queryable from Supabase. */}
 
-            {/* Community Chat Preview */}
-            <Card className="p-5 mt-8">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Community Chat</h3>
-                  <p className="text-xs text-gray-600">23 online</p>
-                </div>
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              </div>
-
-              <div className="space-y-3 mb-4">
-                <div className="text-xs">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Avatar size="sm">PE</Avatar>
-                    <span className="font-semibold text-gray-900">PolicyExpert_EU</span>
-                    <span className="text-gray-500">3m</span>
-                  </div>
-                  <p className="text-gray-700 ml-8">Has anyone analyzed the impact of the new UK data transparency directive?</p>
-                </div>
-
-                <div className="text-xs">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Avatar size="sm">DA</Avatar>
-                    <span className="font-semibold text-gray-900">DataPolicy_Analyst</span>
-                    <span className="text-gray-500">1m</span>
-                  </div>
-                  <p className="text-gray-700 ml-8">Working on a comprehensive analysis. Should be published next week!</p>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Join the discussion..."
-                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={() => showComingSoon('Community Chat')}
-                  aria-label="Send chat message (coming soon)"
-                  className="w-10 h-10 rounded-lg bg-orange-500 border-2 border-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </Card>
           </div>
 
           {/* Center Column - Expert Analysis */}
@@ -442,8 +323,9 @@ export default function HomePage() {
               <GlobalFeedStream />
             </div>
 
-            {/* Video Insights */}
-            <Card className="p-5 mt-6">
+            {/* Video Insights — IG-33: only renders while loading or when real videos exist.
+                 No mock fallback — section disappears once API returns empty. */}
+            {(loadingVideos || videos.length > 0) && (<Card className="p-5 mt-6">
               <h3 className="text-lg font-bold text-gray-900 mb-1">Video Insights</h3>
               <p className="text-sm text-gray-600 mb-4">Expert video commentary</p>
 
@@ -505,7 +387,7 @@ export default function HomePage() {
                   ))}
                 </div>
               )}
-            </Card>
+            </Card>)}
 
             {/* NIST Assistant */}
             <div className="mt-6">
@@ -516,54 +398,6 @@ export default function HomePage() {
           {/* Right Column - Policy Pulse, Videos, Community */}
           <div className="md:col-span-2 lg:col-span-3 space-y-6">
             
-            {/* Policy Pulse */}
-            <Card className="p-5">
-              <h3 className="text-lg font-bold text-gray-900 mb-1">Policy Pulse</h3>
-              <p className="text-sm text-gray-600 mb-4">Quick insights and observations</p>
-              
-              <div className="space-y-4">
-                {mockThoughts.map(thought => (
-                  <div key={thought.id} className="pb-4 border-b border-gray-100 last:border-0 last:pb-0">
-                    <div className="flex items-start gap-2 mb-2">
-                      <Avatar size="sm">{thought.author.avatar}</Avatar>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-semibold text-gray-900">{thought.author.name}</span>
-                          <span className="text-xs text-gray-500">{thought.time}</span>
-                        </div>
-                        <p className="text-sm text-gray-700 leading-relaxed">
-                          {thought.content}
-                        </p>
-                        <div className="flex items-center gap-3 mt-2">
-                          <button
-                            onClick={() => showComingSoon('Social Features')}
-                            className="text-xs text-orange-600 hover:text-orange-700 flex items-center gap-1 border border-orange-500 px-2 py-0.5 rounded"
-                          >
-                            <ThumbsUp className="w-3 h-3" />
-                            Like
-                          </button>
-                          <button
-                            onClick={() => showComingSoon('Social Features')}
-                            className="text-xs text-orange-600 hover:text-orange-700 flex items-center gap-1 border border-orange-500 px-2 py-0.5 rounded"
-                          >
-                            <MessageCircle className="w-3 h-3" />
-                            Reply
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => showComingSoon('Policy Pulse Contributions')}
-                className="w-full mt-4 text-center text-orange-600 font-medium text-sm py-2 hover:bg-orange-50 rounded-lg transition-colors border-2 border-orange-500"
-              >
-                Share a quick policy insight...
-              </button>
-            </Card>
-
             {/* Live FreshRSS Feed */}
             <FeedCard
               title="Live Policy Feed"
@@ -579,58 +413,36 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Newsletter Section */}
+      {/* Stay Informed Section — IG-23: removed fake subscriber count and unbuilt email form */}
       <section className="bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8f] text-white py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Mail className="w-12 h-12 mx-auto mb-4 text-blue-200" />
-          <h2 className="text-3xl font-bold mb-3">Get weekly insights, analysis, and updates delivered to your inbox</h2>
-          <p className="text-blue-100 mb-8">Join 15,000+ policy professionals worldwide</p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-5 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <Button variant="coming-soon" size="lg" onClick={() => showComingSoon('Newsletter Subscription')}>
-              Subscribe
-            </Button>
-          </div>
+          <h2 className="text-3xl font-bold mb-3">Stay Informed</h2>
+          <p className="text-blue-100 mb-6">
+            Weekly insights, analysis, and updates on global AI governance — direct from The Observatory.
+          </p>
+          <a
+            href="mailto:contact@cortexai.com"
+            className="inline-block px-8 py-3 bg-white text-[#1e3a5f] font-semibold rounded-lg hover:bg-blue-50 transition-colors"
+          >
+            contact@cortexai.com
+          </a>
         </div>
       </section>
 
-      {/* Resource Library */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Policy Resource Library</h2>
-            <p className="text-gray-600">Comprehensive collection of frameworks, templates, and research tools for policy professionals</p>
-          </div>
+      {/* Resource Library removed — IG-24: all three cards (Policy Templates, Research Reports, Expert Network)
+           triggered Coming Soon modals and had no real content behind them */}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {resourceCards.map((resource, idx) => (
-              <Card key={idx} className="p-8 text-center hover:shadow-lg transition-shadow">
-                <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                  <resource.icon className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{resource.title}</h3>
-                <h4 className="text-sm font-semibold text-blue-600 mb-3">{resource.subtitle}</h4>
-                <p className="text-sm text-gray-600 mb-6">{resource.description}</p>
-                <button
-                  onClick={() => showComingSoon(resource.title)}
-                  className="text-orange-600 font-medium text-sm hover:text-orange-700 inline-flex items-center gap-2 border-2 border-orange-500 px-4 py-2 rounded-lg"
-                >
-                  {resource.link} <ArrowRight className="w-4 h-4" />
-                </button>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
+      {/* Footer — IG-26: stripped back to real links only.
+           Removed: Live Hub, Resources Library, Policy Database, Digital Identity,
+           AI Governance, Cross-Border Data, Newsletter, Privacy Policy, Cookie Settings,
+           Terms of Service (all Coming Soon), and social icons (no accounts yet).
+           Updated © to 2026. Added Cortex AI production credit. */}
       <footer className="bg-[#1a2332] text-gray-300 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+
+            {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
@@ -639,65 +451,44 @@ export default function HomePage() {
                 <span className="text-white font-bold">iGRAIL</span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">
-                Your trusted source for comprehensive digital policy intelligence, expert analysis, and professional insights.
+                Decision-grade intelligence for boards, counsel, and compliance leaders navigating global AI governance.
               </p>
             </div>
-            
-            <div>
-              <h3 className="text-white font-semibold mb-3">Platform</h3>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/policy-updates" className="hover:text-white transition-colors">Policy Updates</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Expert Analysis</Link></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Live Hub'); }} className="hover:text-white transition-colors cursor-pointer">Live Hub</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Resources Library'); }} className="hover:text-white transition-colors cursor-pointer">Resources Library</a></li>
-              </ul>
-            </div>
 
+            {/* Navigation — real pages only */}
             <div>
-              <h3 className="text-white font-semibold mb-3">Research</h3>
+              <h3 className="text-white font-semibold mb-3">The Observatory</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Policy Database'); }} className="hover:text-white transition-colors cursor-pointer">Policy Database</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Glossary'); }} className="hover:text-white transition-colors cursor-pointer">Digital Identity</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('AI Governance'); }} className="hover:text-white transition-colors cursor-pointer">AI Governance</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Cross-Border Data'); }} className="hover:text-white transition-colors cursor-pointer">Cross-Border Data</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-white font-semibold mb-3">Connect</h3>
-              <ul className="space-y-2 text-sm mb-4">
-                <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
+                <li><Link href="/articles" className="hover:text-white transition-colors">Articles</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
                 <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Newsletter'); }} className="hover:text-white transition-colors cursor-pointer">Newsletter</a></li>
-                <li><a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Privacy Policy'); }} className="hover:text-white transition-colors cursor-pointer">Privacy Policy</a></li>
               </ul>
-              <div className="flex gap-3">
-                <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Social Media'); }} className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
-                  <Twitter className="w-4 h-4" />
-                </a>
-                <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Social Media'); }} className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
-                  <Linkedin className="w-4 h-4" />
-                </a>
-                <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('RSS Feed'); }} className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors">
-                  <Rss className="w-4 h-4" />
-                </a>
-              </div>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h3 className="text-white font-semibold mb-3">Get In Touch</h3>
+              <p className="text-sm text-gray-400 mb-3">
+                Questions, tips, or partnership inquiries:
+              </p>
+              <a
+                href="mailto:contact@cortexai.com"
+                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                contact@cortexai.com
+              </a>
             </div>
           </div>
-          
-          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-            <div>© 2025 iGRAIL. All rights reserved.</div>
-            <div className="flex gap-6">
-              <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Terms of Service'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Terms of Service</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Privacy Policy'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Privacy Policy</a>
-              <a href="#" onClick={(e) => { e.preventDefault(); showComingSoon('Cookie Settings'); }} className="hover:text-gray-300 transition-colors cursor-pointer">Cookie Settings</a>
-            </div>
+
+          <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-gray-500">
+            <div>© 2026 iGRAIL. All rights reserved.</div>
+            <small style={{ opacity: 0.4 }}>Produced by the agentic team at Cortex AI</small>
           </div>
         </div>
       </footer>
 
-      {/* Coming Soon Modal */}
-      <ComingSoonModal isOpen={isOpen} onClose={closeModal} feature={feature} />
+      {/* Coming Soon Modal removed — no triggers remain on this page */}
     </div>
   );
 }
